@@ -28,6 +28,7 @@ def make_ntup(file_name, tree_name,  branches, outfile, n_events, new_tree_name)
     
     # Check branches exist
     branches_avail = [x.GetName() for x in tree.GetListOfBranches()]
+    # branches_avail.append("all")
     for b in branches:
         if not b in branches_avail:
             print "Error branch '%s' not a branch in input tree" %(b)
@@ -38,10 +39,7 @@ def make_ntup(file_name, tree_name,  branches, outfile, n_events, new_tree_name)
 
     # output
     out_file = TFile(outfile, "RECREATE")
-    if (branches="all"):
-        nt       = TNtuple(new_tree_name, "", ":".join(branches))
-    else:
-        nt       = TNtuple(new_tree_name, "", ":".join(branches))
+    nt       = TNtuple(new_tree_name, "", ":".join(branches_avail))
 
     if(n_events < 0):
         n_events = tree.GetEntries()
