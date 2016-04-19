@@ -33,7 +33,7 @@ def make_ntup(file_name, tree_name,  branches, outfile, n_events, new_tree_name)
             print "Error branch '%s' not a branch in input tree" %(b)
             print "Branches available are: \n"
             print "\t".join(branches_avail)
-            print "Use "all" to convert all branches"
+            print "Use 'all' to convert all branches"
             sys.exit()
 
     # output
