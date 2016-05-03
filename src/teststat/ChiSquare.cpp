@@ -77,3 +77,13 @@ std::vector<std::string>
 ChiSquare::GetParameterNames() const{
     return fComponentManager.GetParameterNames();
 }
+
+void
+ChiSquare::SetDataSet(DataSet* dataSet_){
+    fDataSet = dataSet_;
+}
+
+DataSet*
+ChiSquare::GetDataSet(){
+    return fDataSet;
+}

@@ -84,13 +84,12 @@ def create_gsl_cpy_commands(conf, dependencies, copy_folder):
     if conf.env["SYSTEM"] == "Darwin" and dependencies["gsl"].lib_path:
         lib_path = dependencies["gsl"].lib_path
         commands = []
-
+        
         for lib in Glob(os.path.join(lib_path, "*")):
             new_path = os.path.join(copy_folder, 
                                     os.path.basename(lib.rstr()))
             action = [Copy("$TARGET", "$SOURCE")]
-            
-            if "dylib" in lib.rstr():
+            if ("0.dylib" in lib.rstr()):
                 action += [fix_dylib_for_darwin]
 
             kw = {
@@ -98,8 +97,9 @@ def create_gsl_cpy_commands(conf, dependencies, copy_folder):
                 'source' : '{0}'.format(lib),
                 'action' : action
                 }
-            commands.append(kw)
 
+            commands.append(kw)
+        
         dependencies["gsl"].lib_path = Dir(copy_folder).abspath
         return commands
 
