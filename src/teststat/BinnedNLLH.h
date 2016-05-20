@@ -8,12 +8,12 @@
 #include <QuadraticConstraint.h>
 #include <ComponentManager.h>
 #include <DataSet.h>
+#include <CutCollection.h>
 
 class DataSet;
 class BinnedNLLH : public TestStatistic{
  public:
     BinnedNLLH() : fCalculatedDataPdf(false), fDataSet(NULL) {}
-    ~BinnedNLLH(){}
 
     void   SetPdfManager(const BinnedPdfManager&);
     void   SetSystematicManager(const SystematicManager&);
@@ -48,7 +48,10 @@ class BinnedNLLH : public TestStatistic{
     std::pair<unsigned, unsigned> GetBuffer(size_t dim_) const;
     void SetBufferAsOverflow(bool b_); // true by default
     bool GetBufferAsOverflow() const;
-    
+
+    void AddCut(const Cut&);
+    void SetCuts(const CutCollection&);
+
     // Test statistic interface
     void RegisterFitComponents(); 
     void SetParameters(const std::vector<double>&);
@@ -62,7 +65,8 @@ class BinnedNLLH : public TestStatistic{
     SystematicManager fSystematicManager;
     BinnedPdfShrinker fPdfShrinker;
     DataSet* fDataSet;
-    
+    CutCollection fCuts;
+
     std::vector<QuadraticConstraint> fSystematicConstraints;
     std::vector<QuadraticConstraint> fNormalisationConstraints;
     

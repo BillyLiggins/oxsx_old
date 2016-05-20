@@ -16,12 +16,13 @@ class BinnedPdf : public Pdf{
     BinnedPdf() {}
     BinnedPdf(const AxisCollection& axes_);
     BinnedPdf(const Histogram& histo_);
+    Pdf*   Clone() const; 
 
     double operator() (const std::vector<double>& vals_) const;
     double Probability(const EventData&) const;
     double Integral()  const;
     void   Normalise();
-    Pdf*   Clone() const; 
+    void   Scale(double s_);
     
     void   Fill(const std::vector<double>& vals_, double weight_ = 1);
     void   Fill(const EventData& data_, double weight_ = 1);

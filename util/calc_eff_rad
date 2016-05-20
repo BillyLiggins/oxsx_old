@@ -21,7 +21,7 @@ def eff_r(x, y, z):
     return (r/R0)**3
 
 
-def to_eff_r(file_name, tree_name, coord_names, outfile, r_name, coords_to_keep = []):
+def to_eff_r(file_name, tree_name, coord_names, outfile, r_name, coords_to_keep):
     # Get in tree
     in_file = TFile(file_name)
     tree    = in_file.Get(tree_name)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     parser.add_argument('coords', metavar = "c", nargs="+", type=str)
     parser.add_argument('-rname', metavar = "r", type=str, default= "r_eff")
     parser.add_argument('-outfile', metavar='-o', type=str, default = "")
-    parser.add_argument('-keep', metavar='-k', nargs="+", type=str, default = "")
+    parser.add_argument('-keep', metavar='-k', nargs="+", type=str, default = [])
     args = parser.parse_args()
     
     

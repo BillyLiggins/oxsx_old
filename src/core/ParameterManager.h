@@ -19,6 +19,7 @@ class ParameterManager{
     template<typename Container>        
     void AddContainer(Container&,
                       const std::string& nameBase_);
+    void Clear();
 
     // Used to implement FitComponent interface
     std::vector<std::string> GetParameterNames() const;

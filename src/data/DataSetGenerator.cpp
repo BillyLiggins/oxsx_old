@@ -34,11 +34,12 @@ DataSetGenerator::ExpectedRatesDataSet() const{
             EventData event_ = RandomEvent(i);
             
             // Add event to new data set if it passes cut
-            if (fCuts.PassesCuts(event_))
+            if (fCuts.PassesCuts(event_)){
                 dataSet.AddEntry(event_);
                 j++;
             }
         }
+    }
     
     return dataSet;
 }

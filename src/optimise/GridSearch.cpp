@@ -4,6 +4,8 @@
 #include <sstream>
 #include <Histogram.h>
 #include <FitResult.h>
+#include <Exceptions.h>
+#include <Formatter.hpp>
 
 void 
 GridSearch::SetMinima(const std::vector<double>& minima_){
@@ -39,6 +41,23 @@ const FitResult&
 GridSearch::Optimise(TestStatistic* testStat_){
     // list of rates followed by list of systematics
     testStat_->RegisterFitComponents();
+
+    // check initialisation
+    size_t nParams = testStat_ -> GetParameterCount();
+    if(   fStepSizes.size() != nParams
+          || fMaxima.size() != nParams
+          || fMinima.size() != nParams
+          )
+        throw LogicError(Formatter()
+                         << "Grid Search initialisation error - Got "
+                         << fMinima.size() << " Minima, "
+                         << fMaxima.size() << " Maxima and "
+                         << fStepSizes.size() << " Step sizes"
+                         << " - Need one per fit parameter (" << nParams
+                         << ")"
+                         );
+
+    // Prepare best fit
     std::vector<double> bestFit;
     bestFit.resize(testStat_ -> GetParameterCount());
     fMinVal = 0;
