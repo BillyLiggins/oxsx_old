@@ -68,21 +68,7 @@ Minuit::Initialise(){
 
     // max or min?
     if(fMaximising)
-        fMinuitFCN.SetSignFlip(true);
-    
-    if(!fInitialValues.size() 
-       || fInitialValues.size() != fInitialErrors.size() 
-       || fInitialValues.size() != fMinima.size()
-       || fInitialValues.size() != fMaxima.size()
-       )
-        throw LogicError(Formatter() 
-                         << "Minuit initialisation error - Got "
-                         << fMinima.size() << " Minima, "
-                         << fMaxima.size() << " Maxima, "
-                         << fInitialValues.size() << " Initial Values and "
-                         << fInitialErrors.size() << " Initial Errors - Need one per fit parameter"
-                         );
-                         
+        fMinuitFCN.SetSignFlip(true);   
 
     // Create parameters and set limits
     MnUserParameters params(fInitialValues, fInitialErrors);
@@ -123,6 +109,23 @@ Minuit::GetMaxCalls() const {
 const FitResult&
 Minuit::Optimise(TestStatistic* testStat_){
     testStat_ -> RegisterFitComponents();
+    
+    size_t nParams = testStat_ -> GetParameterCount();
+    if(   fInitialValues.size() != nParams
+       || fInitialErrors.size() != nParams
+       || fMinima.size() != nParams
+       || fMaxima.size() != nParams
+       )
+        throw LogicError(Formatter() 
+                         << "Minuit initialisation error - Got "
+                         << fMinima.size() << " Minima, "
+                         << fMaxima.size() << " Maxima, "
+                         << fInitialValues.size() << " Initial Values and "
+                         << fInitialErrors.size() << " Initial Errors"
+                         << " - Need one per fit parameter (" << nParams
+                         << ")"
+                         );
+                         
     fMinuitFCN = MinuitFCN(testStat_);
 	Initialise();
     

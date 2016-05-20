@@ -2,6 +2,8 @@
 #include <Rand.h>
 #include <math.h> //sqrt
 #include <TestStatistic.h>
+#include <Exceptions.h>
+#include <Formatter.hpp>
 #include <iostream>
 
 const std::vector<double>&
@@ -109,7 +111,23 @@ MetropolisHastings::Optimise(TestStatistic* testStat_){
     fRejectionRate = 0;
     fBestFit.resize(fNDims, 0);
     fMaxVal = 0;
-    
+
+    // Check initialisation
+    size_t nParams = testStat_ -> GetParameterCount();
+    if(   (fInitialTrial.size() != nParams && fInitialTrial.size())
+          || fMaxima.size() != nParams
+          || fMinima.size() != nParams
+          || fSigmas.size() != nParams
+          )
+        throw LogicError(Formatter()
+                         << "Metropolis Hastings initialisation error - Got "
+                         << fMinima.size() << " Minima, "
+                         << fMaxima.size() << " Maxima and "
+                         << fSigmas.size() << " Sigmas"
+                         << " - Need one per fit parameter (" << nParams
+                         << ")"
+                         << "\n If initial trial is specified it should be one per fit parameter"
+                         );    
     // Set up the histogram 
     AxisCollection axes;
     std::vector<std::string> paramNames = pTestStatistic->GetParameterNames();
