@@ -5,6 +5,8 @@
 #include <Minuit2/FunctionMinimum.h>
 #include <Minuit2/MnUserParameters.h>
 #include <FitResult.h>
+#include <Exceptions.h>
+#include <Formatter.hpp>
 
 using ROOT::Minuit2::MnMigrad;
 using ROOT::Minuit2::MnMinimize;
@@ -67,6 +69,20 @@ Minuit::Initialise(){
     // max or min?
     if(fMaximising)
         fMinuitFCN.SetSignFlip(true);
+    
+    if(!fInitialValues.size() 
+       || fInitialValues.size() != fInitialErrors.size() 
+       || fInitialValues.size() != fMinima.size()
+       || fInitialValues.size() != fMaxima.size()
+       )
+        throw LogicError(Formatter() 
+                         << "Minuit initialisation error - Got "
+                         << fMinima.size() << " Minima, "
+                         << fMaxima.size() << " Maxima, "
+                         << fInitialValues.size() << " Initial Values and "
+                         << fInitialErrors.size() << " Initial Errors - Need one per fit parameter"
+                         );
+                         
 
     // Create parameters and set limits
     MnUserParameters params(fInitialValues, fInitialErrors);
@@ -109,7 +125,7 @@ Minuit::Optimise(TestStatistic* testStat_){
     testStat_ -> RegisterFitComponents();
     fMinuitFCN = MinuitFCN(testStat_);
 	Initialise();
-
+    
 	std::set<size_t>::iterator it = fFixedParameters.begin();
 	for(; it != fFixedParameters.end(); ++it)
 	  fMinimiser -> Fix(*it);
