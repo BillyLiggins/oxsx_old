@@ -1,5 +1,8 @@
 # user configuration, for custom builds
 [armadillo]
+header_path : /path/to/dir
+lib_path    : /path/to/dir
+
 [hdf5]
 header_path : /path/to/dir
 lib_path    : /path/to/dir

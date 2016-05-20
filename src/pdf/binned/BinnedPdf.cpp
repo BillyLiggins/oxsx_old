@@ -97,6 +97,10 @@ BinnedPdf::Normalise(){
     fHistogram.Normalise();
 }
 
+void
+BinnedPdf::Scale(double s_){
+    fHistogram.Scale(s_);
+}
 
 void 
 BinnedPdf::Fill(const std::vector<double>& vals_, double weight_){

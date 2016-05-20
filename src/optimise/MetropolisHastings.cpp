@@ -109,6 +109,15 @@ MetropolisHastings::Optimise(TestStatistic* testStat_){
     fRejectionRate = 0;
     fBestFit.resize(fNDims, 0);
     fMaxVal = 0;
+    
+    // Set up the histogram 
+    AxisCollection axes;
+    std::vector<std::string> paramNames = pTestStatistic->GetParameterNames();
+    for(size_t i = 0; i < fMinima.size(); i++){
+        axes.AddAxis(PdfAxis(paramNames.at(i), fMinima.at(i), fMaxima.at(i), 
+                             int(pow(fMaxIter, 1./fMinima.size()))));
+    }
+    fHist = Histogram(axes);
 
     // 1. Choose a random starting point or the user defined one
     std::vector<double> currentStep;
@@ -130,8 +139,10 @@ MetropolisHastings::Optimise(TestStatistic* testStat_){
     // 2. Loop step through the space a fixed number of times and
     for(unsigned i = 0; i < fMaxIter; i++){
         // a. Save the point in question if you are past burn-in phase and according to thinning
-        if (i > fBurnIn && !(i%fThinFactor))
+        if (i > fBurnIn && !(i%fThinFactor)){
             fSample.push_back(currentStep);
+            fHist.Fill(currentStep);
+        }
       
         if(!(i%1000))
             std::cout << i << "  /  " << fMaxIter 
@@ -152,6 +163,7 @@ MetropolisHastings::Optimise(TestStatistic* testStat_){
     fFitResult.SetBestFit(fBestFit);
     fFitResult.SetParameterNames(pTestStatistic->GetParameterNames());
     fFitResult.SetStatSample(fSample);
+    fFitResult.SetStatSpace(fHist);
     fFitResult.SetValid(true);
     return fFitResult;
 }

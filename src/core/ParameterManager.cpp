@@ -50,3 +50,9 @@ ParameterManager::AddDouble(double& d_, const std::string& n_){
     fParamPtrs.push_back(new DoubleParameter(d_));
     fNames.push_back(n_);
 }
+
+void
+ParameterManager::Clear(){
+    fParamPtrs.clear();
+    fNames.clear();
+}

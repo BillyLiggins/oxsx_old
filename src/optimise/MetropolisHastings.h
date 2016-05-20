@@ -2,6 +2,7 @@
 #define __OXSX_METROPOLIS_HASTINGS__
 #include <Optimiser.h>
 #include <FitResult.h>
+#include <Histogram.h>
 
 class TestStatistic;
 class MetropolisHastings : public Optimiser{
@@ -59,7 +60,9 @@ class MetropolisHastings : public Optimiser{
     bool fFlipSign;
 
     double fRejectionRate;
+
     std::vector< std::vector<double> > fSample;
+    Histogram fHist;
     FitResult fFitResult;
     std::vector<double> fBestFit;
     double fMaxVal;

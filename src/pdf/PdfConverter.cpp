@@ -42,6 +42,8 @@ PdfConverter::ToTH1D(const BinnedPdf& pdf_, const bool widthCorrect_){
 
     TH1D rtHist("", "", nBins, &lowEdges.at(0));
     rtHist.SetDirectory(0);
+    rtHist.GetXaxis() -> SetTitle(axis.GetLatexName().c_str());
+
 
     for(unsigned bin = 0; bin < nBins; bin++)
 	  if (widthCorrect_)
@@ -64,6 +66,7 @@ PdfConverter::ToTH1D(const Histogram& histo_, const bool widthCorrect_){
 	lowEdges.push_back(highEdges.back());
     TH1D rtHist("", "", nBins, &lowEdges.at(0));
     rtHist.SetDirectory(0);
+    rtHist.GetXaxis() -> SetTitle(axis.GetLatexName().c_str());
 
     for(unsigned bin = 0; bin < nBins; bin++)
 	  if (widthCorrect_)
@@ -93,7 +96,9 @@ PdfConverter::ToTH2D(const Histogram& histo_, const bool widthCorrect_){
 				nBinsX, &lowEdgesX.at(0), 
 				nBinsY, &lowEdgesY.at(0));
 	rtHist.SetDirectory(0);
-	
+    rtHist.GetXaxis() -> SetTitle(axis0.GetLatexName().c_str());
+    rtHist.GetYaxis() -> SetTitle(axis1.GetLatexName().c_str());
+
 	for(size_t i = 0; i < histo_.GetNBins(); i++){
 	  rtHist.Fill(histo_.GetBinCentre(i, 0), // x
 				  histo_.GetAxes().GetBinCentre(i, 1), // y
