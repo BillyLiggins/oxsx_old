@@ -6,6 +6,7 @@
 #include <GridSearch.h>        
 #include <Histogram.h>        
 #include <PdfConverter.h>        
+#include <Minuit.h>        
 
 
 #include <TH1D.h>        
@@ -59,11 +60,12 @@ vector<std::string> glob( const std::string& path, const std::string& start )
 
 void makePDFS(const vector<std::string>& listOfFiles, BinnedPdf & pdf){
 	/* for(int j=0;listOfFiles.size();j++){ */
-	for(int j=0;j<20;j++){
+	for(int j=0;j<80;j++){
 		cout<<"File number : "<<j<<endl;
 		cout<<"File name : "<<listOfFiles[j].c_str()<<endl;
 
 	    ROOTNtuple file(listOfFiles[j], "output");
+
 	    for(size_t i = 0; i <file.GetNEntries(); i++){        
 		pdf.Fill(file.GetEntry(i));        
 	    }//Loop enteries  
@@ -93,8 +95,8 @@ int main(){
 	/////////////////////////////////////        
 	// 2. Fill with data and normalise //        
 	/////////////////////////////////////        
-	const vector<string> signalFileList= glob("/data/snoplus/liggins/year1/oxsx/testData","TeLoadedTe130_0n2b_r"); 
-	const vector<std::string> backgroundFileList= glob("/data/snoplus/liggins/year1/oxsx/testData","TeLoadedTe130_2n2b_r"); 
+	const vector<string> signalFileList= glob("/data/snoplus/liggins/year1/fitting/oxsx/testData","TeLoadedTe130_0n2b_r"); 
+	const vector<std::string> backgroundFileList= glob("/data/snoplus/liggins/year1/fitting/oxsx/testData","TeLoadedTe130_2n2b_r"); 
 	 
 	cout<<"File name after glob : "<<signalFileList[0]<<endl;
 	makePDFS(signalFileList,signalPdf);
@@ -158,20 +160,33 @@ int main(){
 	minima.push_back(0);
 	minima.push_back(0);
 	std::vector<double> maxima;
-	maxima.push_back(1000);
-	maxima.push_back(1000);
+	maxima.push_back(50000);
+	maxima.push_back(50000);
 	std::vector<double> stepsizes(2, 1);
 	 
 	gSearch.SetMaxima(maxima);        
 	gSearch.SetMinima(minima);        
 	gSearch.SetStepSizes(stepsizes);        
 	     
+	Minuit minuit;        
+	std::vector<double> InitialValues;
+	InitialValues.push_back(100000);
+	InitialValues.push_back(100000);
+	std::vector<double> InitialErrors;
+	InitialErrors.push_back(1);
+	InitialErrors.push_back(1);
+
+	minuit.SetMaxima(maxima);
+	minuit.SetMinima(minima);        
+	minuit.SetInitialValues(InitialValues);        
+	minuit.SetInitialErrors(InitialErrors);        
+
 	////////////        
 	// 4. Fit //        
 	////////////        
 
 	std::cout << "Start Search"<<std::endl; 
-	FitResult result = gSearch.Optimise(&lhFunction);
+	FitResult result =minuit.Optimise(&lhFunction);
 	std::cout << "End Search"<<std::endl; 
 	 
 	std::vector<double> fit = result.GetBestFit();        
