@@ -2,6 +2,9 @@
 
 ################################################################
 # Prune away branches of a flat root tree to produce an ntuple #
+#
+# example usage:
+# python prune_mod.py -b energy time -folder testData/solar/ -filepath "/data/snoplus/OfficialProcessing/production_5_3_0/Bi210/SolarBi210_*"
 ################################################################
 import argparse
 import os
@@ -61,32 +64,33 @@ def make_ntup(file_name, tree_name,  branches, outfile, n_events, new_tree_name)
     print "Written %i entries of branch(es) '%s' \nto tree %s  \nin file %s" %(n_events, 
                                                                              ":".join(branches), 
                                                                              new_tree_name, outfile)
-def convertFiles(filelist,file_name, tree_name,  branches, outfile, n_events, new_tree_name):
+def convertFiles(filelist, tree_name,  branches, outfile, n_events, new_tree_name,folder):
     for i in filelist:
-        filepath__=os.path.split(i)[0]
         filename__=os.path.split(i)[1]
 
         outfile = os.path.splitext(filename__)[0]
         outfile += "_oxsx.root"
+        outfile = folder+"/"+outfile
         outfile = outfile
-
         make_ntup(i, tree_name, branches,outfile, n_events, new_tree_name)
             
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-filename', type=str, default = "output")
+    parser.add_argument('-filepath', type=str, default = "")
     parser.add_argument('-treename', metavar='-t', type=str, default = "output")
     parser.add_argument('-newtreename', type=str, default = "")
     parser.add_argument('-branches',metavar='-b', nargs="+", type=str)
     parser.add_argument('-outfile', metavar='-o', type=str, default = "")
     parser.add_argument('-nevents', metavar='-nev', type=int, default = -1)
+    parser.add_argument('-folder', metavar='-f', type=str, default = "")
     args = parser.parse_args()
     
     # filelist=glob.glob("/data/snoplus/OfficialProcessing/production_5_0/TeLoadedTe130_2n2b/TeLoadedTe130_2n2b_*")
-    filelist=glob.glob("/data/snoplus/OfficialProcessing/production_5_0/TeLoadedTe130_0n2b_ntuples/TeLoadedTe130_0n2b_r*")
+    # filelist=glob.glob("/data/snoplus/OfficialProcessing/production_5_0/TeLoadedTe130_0n2b_ntuples/TeLoadedTe130_0n2b_r*")
+    filelist=glob.glob(args.filepath)
 
-    convertFiles(filelist,args.filename, args.treename, args.branches,args.outfile, args.nevents, args.newtreename)
+    convertFiles(filelist, args.treename, args.branches,args.outfile, args.nevents, args.newtreename,args.folder)
     
 
         
