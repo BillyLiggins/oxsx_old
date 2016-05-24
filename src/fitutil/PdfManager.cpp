@@ -63,6 +63,7 @@ PdfManager::GetNPdfs() const{
 // Make a fittable component - i.e. rescale pdfs inside to fit
 void
 PdfManager::MakeFittable(){
+    fParameterManager.Clear();
     fNormalisations.resize(fNPdfs);
     fParameterManager.AddContainer<std::vector<double> >(fNormalisations, 
                                                          "Pdf Normalisation");
