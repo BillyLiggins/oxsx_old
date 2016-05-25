@@ -12,7 +12,7 @@ AnalyticPdf::~AnalyticPdf(){
     delete fFunction;
 }
 
-AnalyticPdf::AnalyticPdf(const AnalyticPdf& other_) : Pdf(other_){
+AnalyticPdf::AnalyticPdf(const AnalyticPdf& other_){
     fNorm  = other_.fNorm;
     fDataRep = other_.fDataRep;
     fFunction = dynamic_cast<IntegrableFunction*>(other_.fFunction->Clone());
