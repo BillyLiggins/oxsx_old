@@ -1,4 +1,8 @@
-// A simple fit in energy for signal and a background        
+// 
+// A simple fit in energy for 2n2b, Po210 and Bi210 backgrounds.        
+//
+
+#include "util.h"
 #include <BinnedPdf.h>        
 #include <string.h>        
 #include <ROOTNtuple.h>        
@@ -42,33 +46,33 @@ const std::string DoubleNueTreeName  = "output";
 const std::string Bi210TreeName  = "output";
 const std::string Po210TreeName   = "output";
 
-TH1D* diffHist(TH1D * h1,TH1D * h2){
-
-
-        double minBin=h1->GetXaxis()->GetXmin();
-        double maxBin=h1->GetXaxis()->GetXmax();
-        double sliceWidth=h1->GetXaxis()->GetBinWidth(1);
-        double numOfBins=h1->GetNbinsX();
-	std::cout<<"minBin = "<<minBin<<std::endl;
-	std::cout<<"maxBin = "<<maxBin<<std::endl;
-	std::cout<<"sliceWidth = "<<sliceWidth<<std::endl;
-	
-	TH1D* rhist = new TH1D("rhist","",numOfBins,minBin,maxBin);
-	for(double i=0;i<numOfBins;i++){
-		double h1cont=h1->GetBinContent(i);
-		double h2cont=h2->GetBinContent(i);
-		double weight= (h1cont-h2cont)/h1cont;
-		rhist->SetBinContent(i,weight);
-	}
-
-	return rhist;
-
-
-}
-
+// TH1D* diffHist(TH1D * h1,TH1D * h2){
+//
+//
+//         double minBin=h1->GetXaxis()->GetXmin();
+//         double maxBin=h1->GetXaxis()->GetXmax();
+//         double sliceWidth=h1->GetXaxis()->GetBinWidth(1);
+//         double numOfBins=h1->GetNbinsX();
+// 	std::cout<<"minBin = "<<minBin<<std::endl;
+// 	std::cout<<"maxBin = "<<maxBin<<std::endl;
+// 	std::cout<<"sliceWidth = "<<sliceWidth<<std::endl;
+// 	
+// 	TH1D* rhist = new TH1D("rhist","",numOfBins,minBin,maxBin);
+// 	for(double i=0;i<numOfBins;i++){
+// 		double h1cont=h1->GetBinContent(i);
+// 		double h2cont=h2->GetBinContent(i);
+// 		double weight= (h1cont-h2cont)/h1cont;
+// 		rhist->SetBinContent(i,weight);
+// 	}
+//
+// 	return rhist;
+//
+//
+// }
+//
 
 int main(){        
-	////////////////////        1. Set Up PDFs //        //////////////////        
+	////////////////////        1. Set Up PDFs //      //////////////////        
          
 	// Set up binning        
 	AxisCollection axes;
@@ -93,8 +97,9 @@ int main(){
 
 	std::cout << "Initialised Pdfs" << std::endl;        
 	 
-	/////////////////////////////////////        2. Fill with data and
-	//normalise //        ///////////////////////////////////        
+	/******************************************************************************************
+	 *************************** 2. Fill with data and normalise ******************************
+	******************************************************************************************/        
 	 
 	double Bi210rate=10000;
 	double Po210rate=10000;
@@ -138,15 +143,15 @@ int main(){
 	TCanvas * defCan = new TCanvas();
 	TH1D Bi210Plot =PdfConverter::ToTH1D(Bi210Pdf,false);
 	Bi210Plot.Draw();
-	defCan->Print("Bi210Pdf.png");
+	defCan->Print("Bi210Pdf.eps");
 
 	TH1D Po210Plot =PdfConverter::ToTH1D(Po210Pdf,false);
 	Po210Plot.Draw();
-	defCan->Print("Po210Pdf.png");
+	defCan->Print("Po210Pdf.eps");
 
 	TH1D DoubleNuePlot =PdfConverter::ToTH1D(DoubleNuePdf,false);
 	DoubleNuePlot.Draw();
-	defCan->Print("DoubleNuePdf.png");
+	defCan->Print("DoubleNuePdf.eps");
 
 
 	
@@ -168,7 +173,7 @@ int main(){
 	TCanvas * comCan = new TCanvas();
 	TH1D  comPlot =PdfConverter::ToTH1D(DataPdf,false); 
 	comPlot.Draw();
-	comCan->Print("DataPlot.png");
+	comCan->Print("DataPlot.eps");
 
 
 	TCanvas * normCan = new TCanvas();
@@ -197,11 +202,10 @@ int main(){
 	normleg->AddEntry(&Po210Plot,"Po210 Pdf","lf");
 	normleg->AddEntry(&DoubleNuePlot,"2#nu#beta#beta pdf","lf");
 	normleg->Draw();
-	normCan->Print("normPlot.png");
+	normCan->Print("normPlot.eps");
 
-	return 0;
-	/* //---- */
-	/* // */
+	// return 0;
+
 
 	/* Convolution conv; */
 	/* Gaussian gaus(0,1); */
@@ -211,13 +215,16 @@ int main(){
 	/* conv.SetDataRep(DataRep); */
 	/* conv.SetPdfDataRep(DataRep); */
 	
-	/* /////////////////// Setting up the lhFunctions //////////////////////// */
-	/* BinnedNLLH lhFunction_gSearch; */
-	/* /1* lhFunction_gSearch.SetDataSet(&dataNt); // initialise withe the data set *1/ */
+	/////////////////// Setting up the lhFunctions ////////////////////////
+
+	BinnedNLLH lhFunction_gSearch;
+	/* lhFunction_gSearch.SetDataSet(&dataNt); // initialise withe the data set */
 	/* lhFunction_gSearch.SetBufferAsOverflow(false); */        
-	/* lhFunction_gSearch.SetBuffer(0,10,10); */
-	/* lhFunction_gSearch.SetDataPdf(comPdf); */
-	/* lhFunction_gSearch.AddPdf(bgPdf); */
+	// lhFunction_gSearch.SetBuffer(0,10,10);
+	lhFunction_gSearch.SetDataPdf(DataPdf);
+	lhFunction_gSearch.AddPdf(Bi210Pdf);
+	lhFunction_gSearch.AddPdf(Po210Pdf);
+	lhFunction_gSearch.AddPdf(DoubleNuePdf);
 	/* lhFunction_gSearch.AddPdf(signalPdf); */        
 	/* lhFunction_gSearch.AddSystematic(&conv); */        
 
@@ -236,44 +243,42 @@ int main(){
 	/* /////////////////// Set up the optimisations //////////////////////////// */
 	/* GridSearch gSearch; */        
 
-	/* std::vector<double> minima; */
-	/* /1* minima.push_back(90000); *1/ */
-	/* /1* minima.push_back(90000); *1/ */
-	/* minima.push_back(70000); */
-	/* minima.push_back(70000); */
-	/* minima.push_back(-0.002); */
-	/* minima.push_back(0.); */
-	/* std::vector<double> maxima; */
-	/* maxima.push_back(140000); */
-	/* maxima.push_back(140000); */
-	/* maxima.push_back(0.0002); */
-	/* maxima.push_back(0.5); */
-	/* std::vector<double> stepsizes; */
-	/* stepsizes.push_back(1); */
-	/* stepsizes.push_back(1); */
-	/* stepsizes.push_back(0.001); */
-	/* stepsizes.push_back(0.001); */
+	std::vector<double> minima;
+
+//--You are working on starting the optermisation.
+// Start Here
+
+	minima.push_back(0);
+	minima.push_back(0);
+	minima.push_back(0);
+	std::vector<double> maxima;
+	maxima.push_back(140000);
+	maxima.push_back(140000);
+	maxima.push_back(140000);
+	std::vector<double> stepsizes;
+	stepsizes.push_back(1);
+	stepsizes.push_back(1);
+	stepsizes.push_back(1);
 	 
 	/* gSearch.SetMaxima(maxima); */
 	/* gSearch.SetMinima(minima); */
 	/* gSearch.SetStepSizes(stepsizes); */        
 
-	/* Minuit minuit; */        
-	/* std::vector<double> InitialValues; */
-	/* InitialValues.push_back(100000); */
-	/* InitialValues.push_back(100000); */
-	/* InitialValues.push_back(0); */
-	/* InitialValues.push_back(0.2); */
+	Minuit minuit;
+	std::vector<double> InitialValues;
+	InitialValues.push_back(100000);
+	InitialValues.push_back(100000);
+	InitialValues.push_back(100000);
 
-	/* std::vector<double> InitialErrors; */
-	/* InitialErrors.push_back(1); */
-	/* InitialErrors.push_back(1); */
-	/* InitialErrors.push_back(0.001); */
-	/* InitialErrors.push_back(0.001); */
-	/* minuit.SetMaxima(maxima); */
-	/* minuit.SetMinima(minima); */        
-	/* minuit.SetInitialValues(InitialValues); */        
-	/* minuit.SetInitialErrors(InitialErrors); */        
+	std::vector<double> InitialErrors;
+	InitialErrors.push_back(1);
+	InitialErrors.push_back(1);
+	InitialErrors.push_back(1);
+
+	minuit.SetMaxima(maxima);
+	minuit.SetMinima(minima);
+	minuit.SetInitialValues(InitialValues);
+	minuit.SetInitialErrors(InitialErrors);
 
 	/* MetropolisHastings metHast; */        
 	/* /1* metHast.SetMaxIter(10000000); *1/ */
@@ -288,25 +293,25 @@ int main(){
 	     
 	     
 	/* ////////////     Now perform the fits //////////// */        
-	/* /1* FitResult result_gSearch = gSearch.Optimise(&lhFunction_gSearch); *1/ */
-	/* FitResult result_minuit = minuit.Optimise(&lhFunction_gSearch); */
+	/* FitResult result_gSearch = gSearch.Optimise(&lhFunction_gSearch); */
+	FitResult result_minuit = minuit.Optimise(&lhFunction_gSearch);
 	/* FitResult result_metHast = metHast.Optimise(&lhFunction_gSearch); */
 	 
-	/* /1* std::vector<double> fit_gSearch = result_gSearch.GetBestFit(); *1/ */        
+	/* std::vector<double> fit_gSearch = result_gSearch.GetBestFit(); */
 	/* std::vector<double> fit_gSearch(2,1); */ 
-	/* /1* result_gSearch.Print(); *1/ */
-	/* /1* result_gSearch.SaveAs("simpleFit_result_gSearch.txt"); *1/ */
+	/* result_gSearch.Print(); */
+	/* result_gSearch.SaveAs("simpleFit_result_gSearch.txt"); */
 
-	/* std::vector<double> fit_minuit = result_minuit.GetBestFit(); */        
-	/* std::cout<<"Minuit Results, pdf 0 = bkg, 1 = sig"<<std::endl; */
-	/* result_minuit.Print(); */
-	/* result_minuit.SaveAs("simpleFit_result_minuit.txt"); */
+	std::vector<double> fit_minuit = result_minuit.GetBestFit();
+	std::cout<<"Minuit Results, pdf 0 = bkg, 1 = sig"<<std::endl;
+	result_minuit.Print();
+	result_minuit.SaveAs("simpleFit_result_minuit.txt");
 
 	/* std::vector<double> fit_metHast =result_metHast.GetBestFit(); */        
 	/* std::cout<<"MetHast Results, pdf 0 = bkg, 1 = sig"<<std::endl; */
-	/* /1* std::vector<double> fit_metHast(2,1); *1/ */ 
+	/* std::vector<double> fit_metHast(2,1); */
 	/* Histogram hist = result_metHast.GetStatSpace(); */
-	/* /1* PdfConverter::ToTH2D(hist).SaveAs("lh_2d.root"); *1/ */
+	/* PdfConverter::ToTH2D(hist).SaveAs("lh_2d.root"); */
 	/* PdfConverter::ToTH1D(hist.Marginalise(0)).SaveAs("pdf_norm0.root"); */
 	/* PdfConverter::ToTH1D(hist.Marginalise(1)).SaveAs("pdf_norm1.root"); */
 	/* PdfConverter::ToTH1D(hist.Marginalise(2)).SaveAs("pdf_norm2.root"); */
@@ -318,7 +323,7 @@ int main(){
 		 
 	/* ///////////////Setting up the histograms ///////////////////// */
 
-	/* /1* gStyle->SetOptStat(kFALSE); *1/ */ 
+	/* gStyle->SetOptStat(kFALSE); */
 	/* TH1D * scaledBg_gSearch= (TH1D*) bgPlot.Clone(); */
 	/* TH1D * scaledSig_gSearch= (TH1D*) sigPlot.Clone(); */
 	/* TH1D * scaledBg_minuit= (TH1D*) bgPlot.Clone(); */
@@ -355,9 +360,9 @@ int main(){
 	/* complete_metHast->SetLineColor(kBlack); */
 	/* complete_metHast->SetLineWidth(2); */
 
-	/* /1* complete_gSearch->SetFillColorAlpha(kBlue,0.5); *1/ */
-	/* /1* complete_minuit->SetFillColorAlpha(kRed,0.5); *1/ */
-	/* /1* complete_metHast->SetFillColorAlpha(kBlack,0.5); *1/ */
+	/* complete_gSearch->SetFillColorAlpha(kBlue,0.5); */
+	/* complete_minuit->SetFillColorAlpha(kRed,0.5); */
+	/* complete_metHast->SetFillColorAlpha(kBlack,0.5); */
 
 	/* complete_gSearch->Draw("same"); */
 	/* complete_minuit->Draw("same"); */
@@ -386,12 +391,12 @@ int main(){
 	/* gPad->RedrawAxis(); */ 
 
 	/* comPlot.Draw(); */
-	/* /1* complete_gSearch->Draw("same"); *1/ */
+	/* complete_gSearch->Draw("same"); */
 	/* complete_minuit->Draw("same"); */
 	/* complete_metHast->Draw("same"); */
 	/* leg->Draw(); */
-	/* /1* complete_gSearch->GetXaxis()->SetTitle("Energy (MeV)"); *1/ */
-	/* /1* complete_gSearch->GetYaxis()->SetTitle("Frac error"); *1/ */
+	/* complete_gSearch->GetXaxis()->SetTitle("Energy (MeV)"); */
+	/* complete_gSearch->GetYaxis()->SetTitle("Frac error"); */
 	/* diff->cd(); */
 	/* // -------------- Bottom panel */
 	/* TPad *pad2 = new TPad("pad2","pad2",0,0.0,1,0.3); */
@@ -402,7 +407,7 @@ int main(){
 	/* pad2->SetGrid(kTRUE); */
 	/* gStyle->SetOptStat(kFALSE); */ 
 
-	/* /1* diffHist->Draw(); *1/ */
+	/* diffHist->Draw(); */
 
 	/* TH1D * diff_gSearch= diffHist(&comPlot,complete_gSearch); */
 	/* TH1D * diff_minuit= diffHist(&comPlot,complete_minuit); */
@@ -425,22 +430,22 @@ int main(){
 	/* diff_minuit->GetYaxis()->SetLabelSize(0.05); */
 	/* diff_minuit->GetYaxis()->SetTitleSize(0.1); */
 
-	/* /1* diff_gSearch->GetXaxis()->SetTitle("Energy (MeV)"); *1/ */
-	/* /1* diff_gSearch->GetYaxis()->SetTitle("Frac error"); *1/ */
-	/* /1* diff_gSearch->GetXaxis()->SetLabelSize(0.1); *1/ */
-	/* /1* diff_gSearch->GetXaxis()->SetTitleSize(0.1); *1/ */
-	/* /1* diff_gSearch->GetYaxis()->SetLabelSize(0.1); *1/ */
-	/* /1* diff_gSearch->GetYaxis()->SetTitleSize(0.1); *1/ */
+	/* diff_gSearch->GetXaxis()->SetTitle("Energy (MeV)"); */
+	/* diff_gSearch->GetYaxis()->SetTitle("Frac error"); */
+	/* diff_gSearch->GetXaxis()->SetLabelSize(0.1); */
+	/* diff_gSearch->GetXaxis()->SetTitleSize(0.1); */
+	/* diff_gSearch->GetYaxis()->SetLabelSize(0.1); */
+	/* diff_gSearch->GetYaxis()->SetTitleSize(0.1); */
 
-	/* /1* complete_minuit->Draw(); *1/ */
-	/* /1* diff_gSearch->Draw(); *1/ */
-	/* /1* diff_minuit->Draw("same"); *1/ */
+	/* complete_minuit->Draw(); */
+	/* diff_gSearch->Draw(); */
+	/* diff_minuit->Draw("same"); */
 	/* diff_minuit->Draw(); */
-	/* /1* diff_metHast->Draw("same"); *1/ */
-	/* /1* gStyle->SetOptStat(0); *1/ */ 
+	/* diff_metHast->Draw("same"); */
+	/* gStyle->SetOptStat(0); */
 
 	/* diff->Print("doublePlanel.png"); */
-	/* /1* std::cout<<" Number diff = "<< comPdf.Integral() - fit_minuit[0]-fit_minuit[1] <<std::endl; *1/ */
+	/* std::cout<<" Number diff = "<< comPdf.Integral() - fit_minuit[0]-fit_minuit[1] <<std::endl; */
 
     /* return 0; */
 }
