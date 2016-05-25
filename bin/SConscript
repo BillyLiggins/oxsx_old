@@ -2,7 +2,7 @@
 import os
 Import('env')
 if not env.GetOption('clean'):
-        env.Append(LIBS    = "oxsx")
+        env.Prepend(LIBS    = "oxsx") # needs to be first for ubuntu
         env.Append(LIBPATH = "#/build")
         includes  = " ".join(["-I" + Dir(x).abspath for x in env["CPPPATH"]])
         lib_paths = " ".join(["-L" + Dir(x).abspath for x in env["LIBPATH"]])

@@ -17,6 +17,7 @@ class Histogram{
     double operator() (const std::vector<double>& vals_) const;
     double Integral()  const;
     void   Normalise();
+    void   Scale(double);
     
     void   Fill(const std::vector<double>& vals_, double weight_ = 1);
     void   Fill(double val_, double weight_ = 1);

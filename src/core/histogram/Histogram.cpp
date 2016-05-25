@@ -41,6 +41,12 @@ Histogram::Normalise(){
         fBinContents[i] /= sum;
 }
 
+void
+Histogram::Scale(double s_){
+    for(size_t i = 0; i < fNBins; i++)
+        fBinContents[i] *= s_;
+}
+
 void 
 Histogram::Fill(const std::vector<double>& vals_, double weight_){
     if(vals_.size() != fNDims)                             
@@ -206,3 +212,4 @@ double
 Histogram::GetBinCentre(size_t bin_, size_t index_) const{
     return fAxes.GetBinCentre(bin_, index_);
 }
+

@@ -4,9 +4,6 @@
 
 class FakePdfGenerator{
  public:
-    FakePdfGenerator(){}
-    ~FakePdfGenerator(){}
-
     void SetPdfs(const std::vector<BinnedPdf>& pdfs_) {fPdfs = pdfs_;}
     std::vector<BinnedPdf> GetPdfs(const std::vector<BinnedPdf>& pdfs_) const {return fPdfs;}
 
