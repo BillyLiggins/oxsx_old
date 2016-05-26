@@ -4,4 +4,6 @@
 #include <iostream>
 
 TH1D* diffHist(TH1D * h1,TH1D * h2);
+//TCanvas* doublePlot( const vector<TH1D>& histList);
+
 #endif

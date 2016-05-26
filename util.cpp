@@ -23,3 +23,10 @@ TH1D* diffHist(TH1D * h1,TH1D * h2){
 
 
 }
+
+//TH1D doublePlot( const std::vector<TH1D>& histList){
+
+
+
+
+}
