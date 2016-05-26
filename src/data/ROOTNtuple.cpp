@@ -2,6 +2,7 @@
 #include <EventData.h>
 #include <iostream>
 #include <Exceptions.h>
+#include <TNtuple.h>
 
 ROOTNtuple::ROOTNtuple(const std::string& fileName_, const std::string& treeName_){
     fROOTFile = new TFile(fileName_.c_str());
