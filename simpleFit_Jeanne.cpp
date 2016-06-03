@@ -37,13 +37,7 @@ const std::string sigMCfile   = "testData/complete0b2n.ntuple_oxsx.root";
 const std::string bgTreeName  = "output";
 const std::string sigTreeName = "output";
 
-/* const std::string dataFile = "oneFileToRuleThemAll.ntuple.root"; */
-/* const std::string dataFile = "secondCompleteData.ntuple.root"; */
 const std::string dataFile = "testData/tester.ntuple.root";
-/* const std::string dataFile = "full.ntuple.root"; */
-/* const std::string dataFile = "secondCompleteData_2.ntuple.root"; */
-/* const std::string dataFile = "combinedDataSet.ntuple_oxsx.root"; */
-/* const std::string dataFile = "complete2b2n.ntuple_oxsx.root"; */
 const std::string dataTreeName = "output";
 
 TH1D* diffHist(TH1D * h1,TH1D * h2){
@@ -53,9 +47,6 @@ TH1D* diffHist(TH1D * h1,TH1D * h2){
         double maxBin=h1->GetXaxis()->GetXmax();
         double sliceWidth=h1->GetXaxis()->GetBinWidth(1);
         double numOfBins=h1->GetNbinsX();
-	// std::cout<<"minBin = "<<minBin<<std::endl;
-	// std::cout<<"maxBin = "<<maxBin<<std::endl;
-	// std::cout<<"sliceWidth = "<<sliceWidth<<std::endl;
 	
 	TH1D* rhist = new TH1D("rhist","",numOfBins,minBin,maxBin);
 	for(double i=0;i<numOfBins;i++){
@@ -140,9 +131,7 @@ int main(){
        	}        
 
 	std::cout<< "n = " << comPdf.Integral()<< std::endl;
-	/* comPdf.Normalise(); */
 
-	/* return 0; */
 	TCanvas * comCan = new TCanvas();
        	TH1D  comPlot =PdfConverter::ToTH1D(comPdf,false); 
 	comPlot.Draw();
@@ -153,11 +142,9 @@ int main(){
 	comPlotcopy->SetLineColor(kGreen);
 	comPlotcopy->SetFillColor(kGreen);
 	TAxis * xaxis= comPlotcopy->GetXaxis();
-	/* TAxis * yaxis= comPlotcopy->GetYaxis(); */
 	double scale= comPlotcopy->Integral(xaxis->FindBin(0.),xaxis->FindBin(10.));
 	comPlotcopy->Scale(1/scale);
 	comPlotcopy->SetMaximum(0.2);
-	/* comPlotcopy->DrawNormalized(); */
 	comPlotcopy->Draw();
 	sigPlot.SetLineColor(kRed);
 	sigPlot.SetLineWidth(2);
@@ -166,11 +153,11 @@ int main(){
 	bgPlot.SetLineWidth(2);
 	bgPlot.Draw("same");
 
-    TLegend* normleg =new TLegend(0.1,0.7,0.48,0.9);
-    normleg->AddEntry(comPlotcopy,"Normalised Data","lf");
-    normleg->AddEntry(&sigPlot,"Signal Pdf","lf");
-    normleg->AddEntry(&bgPlot,"Background Pdf","lf");
-    normleg->Draw();
+	TLegend* normleg =new TLegend(0.1,0.7,0.48,0.9);
+	normleg->AddEntry(comPlotcopy,"Normalised Data","lf");
+	normleg->AddEntry(&sigPlot,"Signal Pdf","lf");
+	normleg->AddEntry(&bgPlot,"Background Pdf","lf");
+	normleg->Draw();
 	normCan->Print("normPlot.png");
 
 	//----
@@ -187,10 +174,10 @@ int main(){
 	
 /////////////////// Setting up the lhFunctions ////////////////////////
     BinnedNLLH lhFunction_gSearch;
-    /* lhFunction_gSearch.SetDataSet(&dataNt); // initialise withe the data set */
-
+// Set up a buffer.
     lhFunction_gSearch.SetBufferAsOverflow(false);        
     lhFunction_gSearch.SetBuffer(0,10,10);
+
     lhFunction_gSearch.SetDataPdf(comPdf);
     lhFunction_gSearch.AddPdf(bgPdf);
     lhFunction_gSearch.AddPdf(signalPdf);        
@@ -203,8 +190,6 @@ int main(){
     GridSearch gSearch;        
 
     std::vector<double> minima;
-    /* minima.push_back(90000); */
-    /* minima.push_back(90000); */
     minima.push_back(70000);
     minima.push_back(70000);
     minima.push_back(-0.002);
@@ -242,14 +227,17 @@ int main(){
     minuit.SetInitialErrors(InitialErrors);        
 
     MetropolisHastings metHast;        
-    /* metHast.SetMaxIter(10000000); */
-    metHast.SetMaxIter(10000000);
+    metHast.SetMaxIter(100000);
     metHast.SetMaxima(maxima);
     metHast.SetMinima(minima);        
     metHast.SetFlipSign(true);
     metHast.SetTestStatLogged(true);
 
-    std::vector<double> sigmas(4,10);
+    std::vector<double> sigmas;
+    sigmas.push_back(1);
+    sigmas.push_back(1);
+    sigmas.push_back(0.001);
+    sigmas.push_back(0.001);
     metHast.SetSigmas(sigmas);
              
              
@@ -322,10 +310,6 @@ int main(){
     complete_metHast->SetLineColor(kBlack);
     complete_metHast->SetLineWidth(2);
 
-    /* complete_gSearch->SetFillColorAlpha(kBlue,0.5); */
-    /* complete_minuit->SetFillColorAlpha(kRed,0.5); */
-    /* complete_metHast->SetFillColorAlpha(kBlack,0.5); */
-
     complete_gSearch->Draw("same");
     complete_minuit->Draw("same");
     complete_metHast->Draw("same");
@@ -391,16 +375,7 @@ int main(){
     diff_minuit->GetYaxis()->SetLabelSize(0.05);
     diff_minuit->GetYaxis()->SetTitleSize(0.1);
 
-    /* diff_gSearch->GetXaxis()->SetTitle("Energy (MeV)"); */
-    /* diff_gSearch->GetYaxis()->SetTitle("Frac error"); */
-    /* diff_gSearch->GetXaxis()->SetLabelSize(0.1); */
-    /* diff_gSearch->GetXaxis()->SetTitleSize(0.1); */
-    /* diff_gSearch->GetYaxis()->SetLabelSize(0.1); */
-    /* diff_gSearch->GetYaxis()->SetTitleSize(0.1); */
 
-    /* complete_minuit->Draw(); */
-    /* diff_gSearch->Draw(); */
-    /* diff_minuit->Draw("same"); */
     diff_minuit->Draw();
     diff_metHast->Draw("same");
     /* gStyle->SetOptStat(0); */ 
