@@ -1,4 +1,5 @@
 *.o
+*.d
 *.dll
 *.so
 .sconsign.dblite
@@ -21,3 +22,5 @@ config/userconfig.ini
 *.log
 bin/*.sh
 gsl/
+*.png
+*.eps
