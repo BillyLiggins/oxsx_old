@@ -87,6 +87,7 @@ Convolution::CacheCompatibleBins(){
     fCompatibleBins.resize(fPdfMapping.GetNBins());
     // only need to look at one side of the matrix, its symmetric
     for(size_t i = 0; i < fPdfMapping.GetNBins(); i++){
+        fCompatibleBins.at(i).push_back(i); // always true
         for(size_t j = i+1;  j < fPdfMapping.GetNBins(); j++){
             if(BinsCompatible(i , j)){
                 fCompatibleBins.at(i).push_back(j);
