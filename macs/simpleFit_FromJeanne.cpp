@@ -16,8 +16,10 @@
 #include <IntegrableFunction.h> 
 #include <BoxCut.h>
 
-const std::string sig1MCfile   = "testData/Bi210/SolarBi210_complete.ntuple_oxsx.root";
-const std::string sig2MCfile   = "testData/Po210/SolarPo210_complete.ntuple_oxsx.root";
+// const std::string sig1MCfile   = "testData/Bi210/SolarBi210_complete.ntuple_oxsx.root";
+// const std::string sig2MCfile   = "testData/Po210/SolarPo210_complete.ntuple_oxsx.root";
+const std::string sig1MCfile   = "testData/Bi210/SolarBi210_data.ntuple_oxsx.root";
+const std::string sig2MCfile   = "testData/Po210/SolarPo210_data.ntuple_oxsx.root";
 const std::string sig1TreeName = "output";
 const std::string sig2TreeName = "output";
 
