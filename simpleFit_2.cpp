@@ -77,7 +77,7 @@ int main(){
 	// Set up binning        
 	AxisCollection axes;
 	axes.AddAxis(PdfAxis("energy", 0., 3, 60,"Energy"));
-	/* axes.AddAxis(PdfAxis("energy", 2., 3, 20,"Energy")); */
+	// axes.AddAxis(PdfAxis("energy", 2., 3, 20,"Energy"));
 
 	// Only interested in first bit of data ntuple        
 	DataRepresentation dataRep(0);        

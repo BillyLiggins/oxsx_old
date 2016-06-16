@@ -21,3 +21,12 @@ config/userconfig.ini
 *.log
 bin/*.sh
 gsl/
+*.png
+*.eps
+*.txt
+-*
+
+simpleFit
+simpleFit_2
+singleFit
+fit
