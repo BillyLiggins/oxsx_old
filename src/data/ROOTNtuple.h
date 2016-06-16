@@ -7,11 +7,11 @@
 #define __OXSX_ROOT_NTUPLE__
 #include <DataSet.h>
 #include <string>
-#include <TNtuple.h>
 #include <TFile.h>
 #include <vector>
 
 class EventData;
+class TNtuple;
 class ROOTNtuple : public DataSet{
  public:
     ROOTNtuple(const std::string& fileName_, const std::string& treeName_);
