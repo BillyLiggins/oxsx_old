@@ -32,14 +32,14 @@
 #include <TPaveStats.h> 
 #include <TAttFill.h>
 
-const std::string bgMCfile    = "complete2b2n.ntuple_oxsx.root";
-const std::string sigMCfile   = "complete0b2n.ntuple_oxsx.root"; 
+const std::string bgMCfile    = "testData/complete2b2n.ntuple_oxsx.root";
+const std::string sigMCfile   = "testData/complete0b2n.ntuple_oxsx.root"; 
 const std::string bgTreeName  = "output";
 const std::string sigTreeName = "output";
 
 /* const std::string dataFile = "oneFileToRuleThemAll.ntuple.root"; */
 /* const std::string dataFile = "secondCompleteData.ntuple.root"; */
-const std::string dataFile = "tester.ntuple.root";
+const std::string dataFile = "testData/tester.ntuple.root";
 /* const std::string dataFile = "full.ntuple.root"; */
 /* const std::string dataFile = "secondCompleteData_2.ntuple.root"; */
 /* const std::string dataFile = "combinedDataSet.ntuple_oxsx.root"; */
@@ -49,14 +49,14 @@ const std::string dataTreeName = "output";
 TH1D* diffHist(TH1D * h1,TH1D * h2){
 
 
-	double minBin=h1->GetXaxis()->GetXmin();
-	double maxBin=h1->GetXaxis()->GetXmax();
-	double sliceWidth=h1->GetXaxis()->GetBinWidth(1);
-	double numOfBins=h1->GetNbinsX();
-	std::cout<<"minBin = "<<minBin<<std::endl;
-	std::cout<<"maxBin = "<<maxBin<<std::endl;
-	std::cout<<"sliceWidth = "<<sliceWidth<<std::endl;
-
+        double minBin=h1->GetXaxis()->GetXmin();
+        double maxBin=h1->GetXaxis()->GetXmax();
+        double sliceWidth=h1->GetXaxis()->GetBinWidth(1);
+        double numOfBins=h1->GetNbinsX();
+	// std::cout<<"minBin = "<<minBin<<std::endl;
+	// std::cout<<"maxBin = "<<maxBin<<std::endl;
+	// std::cout<<"sliceWidth = "<<sliceWidth<<std::endl;
+	
 	TH1D* rhist = new TH1D("rhist","",numOfBins,minBin,maxBin);
 	for(double i=0;i<numOfBins;i++){
 		double h1cont=h1->GetBinContent(i);
@@ -181,6 +181,7 @@ int main(){
 	conv.SetFunction(&gaus);
 	conv.SetAxes(axes);
 	DataRepresentation DataRep(0);
+
 	conv.SetDataRep(DataRep);
 	conv.SetPdfDataRep(DataRep);
 
