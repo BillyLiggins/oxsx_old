@@ -69,7 +69,7 @@ TH1D* diffHist(TH1D * h1,TH1D * h2){
 		weight= 0;
 		}
 		rhist->SetBinContent(i,weight);
-		std::cout << "weight = "<<weight << std::endl;
+		// std::cout << "weight = "<<weight << std::endl;
 
 	}
 	// TCanvas * c1 =new TCanvas();
@@ -289,7 +289,7 @@ int main(){
 //----------------------MetHast--------------------------
 	MetropolisHastings metHast; 
 	// metHast.SetInitialTrial(fit_minuit);
-	metHast.SetMaxIter(10000000); 
+	metHast.SetMaxIter(100000); 
 	metHast.SetMaxima(maxima); 
 	metHast.SetMinima(minima);         
 	metHast.SetFlipSign(true); 
@@ -343,7 +343,7 @@ int main(){
 	complete_minuit->Add(clone_histList[1],1); 
 	complete_minuit->Add(clone_histList[2],1); 
 	complete_minuit->Add(clone_histList[3],1); 
-	std::cout<<"Get here"<<std::endl;
+	// std::cout<<"Get here"<<std::endl;
 	//complete_metHast->Add(scaledBg_metHast,scaledSig_metHast,1,1); 
 
 	TCanvas * fitCan= new TCanvas(); 
@@ -400,8 +400,11 @@ int main(){
 	// complete_gSearch->Draw("same"); 
 	// complete_metHast->Draw("same"); 
 	leg->Draw(); 
-	complete_minuit->GetXaxis()->SetTitle("Energy (MeV)"); 
-	complete_minuit->GetYaxis()->SetTitle("Frac error"); 
+	// complete_minuit->GetXaxis()->SetTitle("Energy (MeV)"); 
+	// complete_minuit->GetYaxis()->SetTitle("Frac error"); 
+	histList[0].SetTitle("Spectrum fit with fractional bin error");
+	histList[0].GetYaxis()->SetTitle("Counts");
+	histList[0].GetYaxis()->SetTitleOffset(1); 
 	diff->cd(); 
 	// // -------------- Bottom panel 
 	TPad *pad2 = new TPad("pad2","pad2",0,0.0,1,0.3); 
@@ -428,7 +431,8 @@ int main(){
 	// diff_metHast->SetFillColorAlpha(kBlack,0.1); 
 
 	diff_minuit->GetXaxis()->SetTitle("Energy (MeV)"); 
-	diff_minuit->GetYaxis()->SetTitle("Frac error"); 
+	diff_minuit->GetYaxis()->SetTitle("Fractional bin error"); 
+	diff_minuit->GetYaxis()->SetTitleOffset(0.5); 
 	diff_minuit->GetXaxis()->SetLabelSize(0.1); 
 	diff_minuit->GetXaxis()->SetTitleSize(0.1); 
 	diff_minuit->GetYaxis()->SetLabelSize(0.1); 
@@ -452,5 +456,5 @@ int main(){
 	diff->Print("doublePlanel.png"); 
 	std::cout<<" Number diff = "<< histList[0].Integral() - fit_minuit[0]-fit_minuit[1]-fit_minuit[2] <<std::endl; 
 
-    // return 0; 
+    return 0; 
 }
