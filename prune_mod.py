@@ -72,6 +72,7 @@ def convertFiles(filelist, tree_name,  branches, outfile, n_events, new_tree_nam
         outfile += "_oxsx.root"
         outfile = folder+"/"+outfile
         outfile = outfile
+        print "this is the outfile : ",outfile
         make_ntup(i, tree_name, branches,outfile, n_events, new_tree_name)
             
 
@@ -87,8 +88,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # filelist=glob.glob("/data/snoplus/OfficialProcessing/production_5_0/TeLoadedTe130_2n2b/TeLoadedTe130_2n2b_*")
-    # filelist=glob.glob("/data/snoplus/OfficialProcessing/production_5_0/TeLoadedTe130_0n2b_ntuples/TeLoadedTe130_0n2b_r*")
-    filelist=glob.glob(args.filepath)
+    filelist=glob.glob("/home/billy/workspace/PhD/testData/Po210/*")
+    # filelist=glob.glob(args.filepath)
+    print filelist
+    print "you have to give this a filelist, branches and a folder!"
 
     convertFiles(filelist, args.treename, args.branches,args.outfile, args.nevents, args.newtreename,args.folder)
     

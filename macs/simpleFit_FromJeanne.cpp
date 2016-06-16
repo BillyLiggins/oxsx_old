@@ -11,17 +11,18 @@
 #include <Rand.h>
 #include <Gaussian.h>
 #include <Convolution.h>
+#include <Scale.h>
 #include <Minuit.h>
 #include <IntegrableFunction.h> 
 #include <BoxCut.h>
 
-const std::string sig1MCfile   = "testData/SolarBi210_r11_s0_p1.ntuple_oxsx.root";
-const std::string sig2MCfile   = "testData/SolarPo210_r11_s0_p3.ntuple_oxsx.root";
+const std::string sig1MCfile   = "testData/Bi210/SolarBi210_complete.ntuple_oxsx.root";
+const std::string sig2MCfile   = "testData/Po210/SolarPo210_complete.ntuple_oxsx.root";
 const std::string sig1TreeName = "output";
 const std::string sig2TreeName = "output";
 
-const std::string dataFile1 = "testData/SolarBi210_r11_s0_p1.ntuple_oxsx.root";
-const std::string dataFile2 = "testData/SolarPo210_r11_s0_p3.ntuple_oxsx.root";
+const std::string dataFile1 = "testData/Bi210/SolarBi210_data.ntuple_oxsx.root";
+const std::string dataFile2 = "testData/Po210/SolarPo210_data.ntuple_oxsx.root";
 const std::string dataTreeName = "output";
 
 int main(){
@@ -36,7 +37,7 @@ int main(){
 
 		// Set up binning        
 		AxisCollection axes;        
-		axes.AddAxis(PdfAxis("nhits", 50,550,40, "nhits"));
+		axes.AddAxis(PdfAxis("nhits", 0,600,30, "nhits"));
 
 		// Only interested in first bit of data ntuple        
 		DataRepresentation dataRep(0);        
@@ -113,6 +114,13 @@ int main(){
 		th2fromPdf_smear.Write();
 		CheckPDFs.Close();
 
+		// Scale scaler ;
+		// scaler.SetAxes(axes);        // axes as data - just 1 in nhits
+		// scaler.SetDataRep(dataRep);
+		// scaler.SetPdfDataRep(dataRep);
+		// scaler.SetScaleFactor(1.);
+		// scaler.MakeFittable();
+		// scaler.Construct();
 
 		////////////////////////////        
 		// 3. Set Up LH function  //        
@@ -167,12 +175,12 @@ int main(){
 					  */
 				BinnedNLLH lh;
 				lh.SetBufferAsOverflow(false); // when the buffer is applied it throws away the bins that are smeared off the end of the buffer and renormalises, rather than piling the probability into the first bin.
-				// lh.SetBuffer(0,2,2);    // creates a buff of 2 bins at either side of axis 0
+				lh.SetBuffer(0,2,2);    // creates a buff of 2 bins at either side of axis 0
 				lh.AddCut(boxCut);      // need to make sure data is binned with this cut as well as MC
 				lh.SetDataSet(&fakeData);
 				lh.AddPdf(sig1Pdf);
 				lh.AddPdf(sig2Pdf);
-				if(addsys)lh.AddSystematic(&smearer);
+				if(addsys)lh.AddSystematic(&smearer);//lh.AddSystematic(&scaler);
 
 				std::cout << "Built LH function for test " << itest << std::endl;
 
@@ -182,21 +190,25 @@ int main(){
 				minima.push_back(10);
 				if(addsys)  minima.push_back(-10.); // Gaussian mean and sigma
 				if(addsys)  minima.push_back(0.);
+				// if(addsys)  minima.push_back(1.); //Scale 
 				std::vector<double> maxima;
 				maxima.push_back(1000);
 				maxima.push_back(1000);
 				if(addsys)  maxima.push_back(10.);
 				if(addsys)  maxima.push_back(2.);
+				// if(addsys)  maxima.push_back(4.);
 				std::vector<double> initialval;
 				initialval.push_back(200);
 				initialval.push_back(200);
 				if(addsys)  initialval.push_back(-2.);
 				if(addsys)  initialval.push_back(5.);
+				// if(addsys)  initialval.push_back(2.5);
 				std::vector<double> initialerr;
 				initialerr.push_back(20);
 				initialerr.push_back(20);
 				if(addsys)  initialerr.push_back(0.1);
 				if(addsys)  initialerr.push_back(0.1);
+				// if(addsys)  initialerr.push_back(0.1);
 
 				Minuit min;
 				min.SetMinima(minima);
@@ -220,13 +232,15 @@ int main(){
 		TH1D *hfitsB = new TH1D("hfitsB","",100,nB*0.8,nB*1.2);
 		TH1D *hfitsC = new TH1D("hfitsC","",100,-10,10);
 		TH1D *hfitsD = new TH1D("hfitsD","",100,-10,10);
+		// TH1D *hfitsE = new TH1D("hfitsE","",100,-2,2);
 		float num[ntests];
 		for(int i=0;i<ntests;++i){
 				hfitsA->Fill(fits[i][0]);
 				hfitsB->Fill(fits[i][1]);
 				hfitsC->Fill(fits[i][2]);
 				hfitsD->Fill(fits[i][3]);
-				std::cout << fits[i][0] << " " << fits[i][1] << " " << fits[i][2] << " " << fits[i][3] << " " << std::endl;
+				// hfitsE->Fill(fits[i][4]);
+				std::cout << fits[i][0] << " " << fits[i][1] << " " << fits[i][2] << " " << fits[i][3] << " " << fits[i][3] <<   std::endl;
 				num[i] = i+1;
 		}
 		TCanvas *Can = new TCanvas("Can");
@@ -239,6 +253,8 @@ int main(){
 		hfitsC->Draw();
 		Can->cd(4);
 		hfitsD->Draw();
+		// Can->cd(5);
+		// hfitsE->Draw();
 		Can->Print("Plots.png");
 		return 0;
 }
