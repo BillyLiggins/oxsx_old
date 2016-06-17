@@ -7,17 +7,16 @@
 
 class QuadraticConstraint{
  public:
- QuadraticConstraint(size_t paramIndex_, double mean_, double width_) : 
-    fMean(mean_), fWidth(width_), fParamIndex(paramIndex_) {}
+ QuadraticConstraint(){}
+ QuadraticConstraint(double mean_, double width_) : 
+    fMean(mean_), fWidth(width_) {}
 
-    double operator()(const std::vector<double>& vals_) const {
-        double val = vals_.at(fParamIndex);
-        return (val - fMean) * (val - fMean) / (2 * fWidth * fWidth);
+    double Evaluate(double val_) const {
+        return (val_ - fMean) * (val_ - fMean) / (2 * fWidth * fWidth);
     }
     
  private:
     double fMean;
     double fWidth;
-    size_t fParamIndex;
 };
 #endif

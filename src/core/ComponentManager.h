@@ -14,9 +14,12 @@ class ComponentManager{
     std::vector<double>       GetParameters() const;
     int                       GetTotalParameterCount() const;
     void                      Clear();
+
+    double GetParameter(const std::string&) const;
+
  private:
-    std::vector<FitComponent*> fComponents;
-    std::vector<int>           fParamCounts;
+    std::vector<FitComponent*>  fComponents;
+    std::vector<int>            fParamCounts;
 
     int fTotalParamCount;
     int fComponentCount;

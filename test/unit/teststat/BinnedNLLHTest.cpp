@@ -2,8 +2,8 @@
 #include <BinnedNLLH.h>
 #include <Gaussian.h>
 #include <PdfConverter.h>
-#include <iostream>
 #include <OXSXDataSet.h>
+#include <iostream>
 
 TEST_CASE("Binned NLLH, 3 rates no systematics"){
     Gaussian gaus1(1, 10);
@@ -44,5 +44,16 @@ TEST_CASE("Binned NLLH, 3 rates no systematics"){
         
         lh.SetParameters(std::vector<double>(3, 1));
         REQUIRE(lh.Evaluate() == Approx(sumNorm + sumLogProb));
+    }
+
+    SECTION("Correct Probability with constraint"){
+        lh.SetConstraint("Pdf Normalisation 0", 3, 1);
+
+        double sumLogProb = -log(prob1 + prob2 + prob3);
+        double sumNorm    = 3;
+        double constraint = 2;
+
+        lh.SetParameters(std::vector<double>(3, 1));
+        REQUIRE(lh.Evaluate() == Approx(sumNorm + sumLogProb + constraint));
     }
 }

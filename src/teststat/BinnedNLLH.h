@@ -4,11 +4,12 @@
 #include <BinnedPdfManager.h>
 #include <SystematicManager.h>
 #include <BinnedPdfShrinker.h>
-#include <vector>
-#include <QuadraticConstraint.h>
 #include <ComponentManager.h>
 #include <DataSet.h>
 #include <CutCollection.h>
+#include <QuadraticConstraint.h>
+#include <map>
+#include <vector>
 
 class DataSet;
 class BinnedNLLH : public TestStatistic{
@@ -24,15 +25,8 @@ class BinnedNLLH : public TestStatistic{
     void   AddPdfs(const std::vector<BinnedPdf>&);
     void   AddSystematics(const std::vector<Systematic*>);
 
-    void AddSystematicConstraint(const QuadraticConstraint& constr_);
-    void AddNormalisationConstraint(const QuadraticConstraint& constr_);
-
-    void SetSystematicConstraint(size_t index_, const QuadraticConstraint& constr_);
-    void SetNormalisationConstraint(size_t index_, const QuadraticConstraint& constr_);
-
-    QuadraticConstraint GetSystematicConstraint(size_t index_)    const;
-    QuadraticConstraint GetNormalisationConstraint(size_t index_)  const;
-
+    void   SetConstraint(const std::string& paramName_, double mean_, double sigma_);
+    
     void SetNormalisations(const std::vector<double>& norms_);
     std::vector<double> GetNormalisations() const;
 
@@ -66,10 +60,8 @@ class BinnedNLLH : public TestStatistic{
     BinnedPdfShrinker fPdfShrinker;
     DataSet* fDataSet;
     CutCollection fCuts;
+    std::map<std::string, QuadraticConstraint> fConstraints;
 
-    std::vector<QuadraticConstraint> fSystematicConstraints;
-    std::vector<QuadraticConstraint> fNormalisationConstraints;
-    
     BinnedPdf fDataPdf;
     bool      fCalculatedDataPdf;
     ComponentManager fComponentManager;    

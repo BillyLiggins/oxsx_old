@@ -38,12 +38,9 @@ BinnedNLLH::Evaluate(){
         nLogLH += normalisations.at(i);
             
     // Constraints
-    // FIXME:: Put this back in!
-//     for(size_t i = 0; i < fSystematicConstraints.size(); i++)
-//         nLogLH += fSystematicConstraints.at(i).operator()(fSystematicParams);
-    
-//     for(size_t i = 0; i < fNormalisationConstraints.size(); i++)
-//         nLogLH += fNormalisationConstraints.at(i).operator()(normalisations);
+    for(std::map<std::string, QuadraticConstraint>::iterator it = fConstraints.begin();
+        it != fConstraints.end(); ++it)
+        nLogLH += it->second.Evaluate(fComponentManager.GetParameter(it->first));
 
     return nLogLH;
 }
@@ -65,42 +62,6 @@ BinnedNLLH::SetPdfManager(const BinnedPdfManager& man_){
 void
 BinnedNLLH::SetSystematicManager(const SystematicManager& man_){
     fSystematicManager = man_;
-}
-
-
-void
-BinnedNLLH::SetSystematicConstraint(size_t index_, const QuadraticConstraint& constr_){
-    if(index_ >= fSystematicConstraints.size())
-        throw DimensionError("Tried to set systematic constraint that doesn't exist : logic error");
-    fSystematicConstraints[index_] = constr_;
-}
-
-
-void
-BinnedNLLH::AddNormalisationConstraint(const QuadraticConstraint& constr_){
-    fNormalisationConstraints.push_back(constr_);
-}
-
-void
-BinnedNLLH::SetNormalisationConstraint(size_t index_, const QuadraticConstraint& constr_){
-    if(index_ >= fNormalisationConstraints.size())
-        throw DimensionError("BinnedNNLH::Tried to set systematic constraint that doesn't exist : logic error");
-    fNormalisationConstraints[index_] = constr_;
-}
-
-QuadraticConstraint
-BinnedNLLH::GetNormalisationConstraint(size_t index_) const{
-    if(index_ >= fNormalisationConstraints.size())
-        throw DimensionError("BinnedNLLH::Attempted access on non existent constraint");
-    return fNormalisationConstraints.at(index_);
-}
-
-
-QuadraticConstraint
-BinnedNLLH::GetSystematicConstraint(size_t index_) const{
-    if(index_ >= fSystematicConstraints.size())
-        throw DimensionError("BinnedNLLH::Attempted access on non existent constraint");
-    return fSystematicConstraints.at(index_);
 }
 
 void
@@ -184,8 +145,14 @@ BinnedNLLH::AddCut(const Cut& cut_){
     fCuts.AddCut(cut_);
 }
 
-void BinnedNLLH::SetCuts(const CutCollection& cuts_){
+void 
+BinnedNLLH::SetCuts(const CutCollection& cuts_){
     fCuts = cuts_;
+}
+
+void 
+BinnedNLLH::SetConstraint(const std::string& paramName_, double mean_, double sigma_){
+    fConstraints[paramName_] = QuadraticConstraint(mean_, sigma_);
 }
 
 /////////////////////////////////////////////////////////

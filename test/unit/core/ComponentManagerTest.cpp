@@ -25,8 +25,8 @@ TEST_CASE("Stand alone component manager"){
     SECTION("adding two"){
         cmpMan.AddComponent(&pdf1);
         cmpMan.AddComponent(&pdf2);
-        REQUIRE(cmpMan.GetTotalParameterCount() == 100 * 2);
-        
+        REQUIRE(cmpMan.GetTotalParameterCount() == 100 * 2);        
+
         cmpMan.SetParameters(std::vector<double> (100 * 2, 8));
         REQUIRE(pdf1.GetParameters() == std::vector<double>(100, 8));
         REQUIRE(pdf2.GetParameters() == std::vector<double>(100, 8));
@@ -37,5 +37,11 @@ TEST_CASE("Stand alone component manager"){
         REQUIRE(cmpMan.GetTotalParameterCount() == 0);
         REQUIRE(cmpMan.GetParameterNames() == std::vector<std::string>(0));
     }
-    
+    SECTION("getting parameter by name"){
+        cmpMan.AddComponent(&pdf1);
+        REQUIRE(cmpMan.GetParameter("Spectral fit bin 0") == 0);
+        pdf1.SetBinContent(0, 10);
+        REQUIRE(cmpMan.GetParameter("Spectral fit bin 0") == 10);
+        
+    }
 }
