@@ -85,9 +85,9 @@ TH1D* diffHist(TH1D * h1,TH1D * h2){
 int main(){        
 				bool QmetHast=true;
 				std::vector<std::string> inputFiles;
-				inputFiles.push_back("completeBi210.ntuple_oxsx.root");
-				inputFiles.push_back("completePo210.ntuple_oxsx.root");
-				inputFiles.push_back("complete2b2n.ntuple_oxsx.root");
+				inputFiles.push_back("testData/TeLoaded/Bi210/complete_Bi210.ntuple_oxsx.root");
+				inputFiles.push_back("testData/TeLoaded/Po210/complete_Po210.ntuple_oxsx.root");
+				inputFiles.push_back("testData/TeLoaded/2n2b/complete_2n2b.ntuple_oxsx.root");
 				inputFiles.push_back("testData/TeLoaded/C14/complete_C14.ntuple_oxsx.root");
 
 				std::vector<std::string> names;
