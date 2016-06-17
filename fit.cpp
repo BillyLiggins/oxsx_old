@@ -1,5 +1,5 @@
-// // A simple fit in energy for 2n2b, Po210 and Bi210 backgrounds.        
-// This is very messy you should make it so that the everything is in vectors.
+// // a simple fit in energy for 2n2b, po210 and bi210 backgrounds.        
+// this is very messy you should make it so that the everything is in vectors.
 
 #include "util.h"
 #include <BinnedPdf.h>        
@@ -37,6 +37,7 @@
 #include <TPad.h> 
 #include <TPaveStats.h> 
 #include <TAttFill.h>
+#include <math.h>	
 
 //const std::string Bi210File    = "completeBi210.ntuple_oxsx.root";
 //const std::string Po210File    = "completePo210.ntuple_oxsx.root";
@@ -45,6 +46,35 @@
 //const std::string DoubleNueTreeName  = "output";
 //const std::string Bi210TreeName  = "output";
 //const std::string Po210TreeName   = "output";
+
+double find2n2bRate(double percentage=0.5,double fidRad=6000)
+{
+	//This function returns the 2n2b rate given a % loading and fid radius.
+	double Vratio= pow(fidRad,3)/pow(6000,3);	
+	std::cout << "Volume ratio = "<<Vratio << std::endl;
+	double massOfLABPPO=(7.8e5)*Vratio;
+	std::cout << "Mass of LABPPO = "<<massOfLABPPO << std::endl;
+	double rawTeMass= percentage*massOfLABPPO/100;
+	std::cout << "Raw mass of Te = "<<rawTeMass << std::endl;
+	double _130TeMass= 0.3408*rawTeMass;
+	std::cout << "130Te mass = "<<_130TeMass << std::endl;
+	double _130TeHalflife= 7e20;
+	std::cout << "130Te halflife = "<<_130TeHalflife << std::endl;
+	double decayrate=log(2)/_130TeHalflife;
+	std::cout << "decay rate = "<<decayrate << std::endl;
+	double molarMassTe=129.906;
+	std::cout << "130Te molar mass = "<<molarMassTe << std::endl;
+	double molesOfTe=molarMassTe*_130TeMass;
+	std::cout << "Number of moles of 130Te = "<<molesOfTe << std::endl;
+	double numberOfParticles=molesOfTe*molarMassTe;
+	std::cout << "num of particles = "<<numberOfParticles<< std::endl;
+	double numOfEvents=numberOfParticles*decayrate*6.022e23;
+	std::cout << "Number of events  = "<<numOfEvents  << std::endl;
+	std::cout << "check this function again.  << std::endl;
+
+	return numOfEvents;
+}
+
 
 TH1D* diffHist(TH1D * h1,TH1D * h2){
 
@@ -84,6 +114,7 @@ TH1D* diffHist(TH1D * h1,TH1D * h2){
 
 int main(){        
 				bool QmetHast=true;
+				bool QSys=false;
 				std::vector<std::string> inputFiles;
 				inputFiles.push_back("testData/TeLoaded/Bi210/complete_Bi210.ntuple_oxsx.root");
 				inputFiles.push_back("testData/TeLoaded/Po210/complete_Po210.ntuple_oxsx.root");
@@ -123,11 +154,13 @@ int main(){
 				std::vector<double> rates;
 				rates.push_back(1000); //Bi210
 				rates.push_back(1000); //Po210
-				rates.push_back(1000); //2n2b
-				rates.push_back(1000); //2n2b
+				rates.push_back(find2n2bRate()); //2n2b
+				rates.push_back(1000); //C14
+				//rates for a year of data.
 				// rates.push_back(427368); //Bi210
 				// rates.push_back(1.74e7); //Po210
-				// rates.push_back(100000); //2n2b
+				// rates.push_back(6.0997e7); //2n2b not known
+				// rates.push_back(3.78e9); //C14
 
 				std::vector<ROOTNtuple*> ntupleList;
 				std::vector<BinnedPdf> binnedPDFList;
@@ -216,8 +249,7 @@ int main(){
 				normleg->Draw();
 				normCan->Print("normPlot.png");
 
-
-
+	
 				// Convolution conv;
 				// Gaussian gaus(0,1); 
 				// conv.SetFunction(&gaus);
@@ -228,22 +260,22 @@ int main(){
 
 				///////////////////// Setting up the lhFunctions ////////////////////////
 
-				BinnedNLLH lhFunction_gSearch;
-				lhFunction_gSearch.SetDataPdf(DataPdf); // initialise withe the data set
+				BinnedNLLH lh;
+				lh.SetDataPdf(DataPdf); // initialise withe the data set
 				for(int i=0;i<binnedPDFList.size();i++){
-								lhFunction_gSearch.AddPdf(binnedPDFList[i]);
+								lh.AddPdf(binnedPDFList[i]);
 
 				}
-				// lhFunction_gSearch.AddSystematic(&conv);
+				// lh.AddSystematic(&conv);
 
-				// lhFunction_gSearch.SetBufferAsOverflow(false);
-				// lhFunction_gSearch.SetBuffer(0,10,10);
-				//lhFunction_gSearch.SetDataPdf(DataPdf);
-				//lhFunction_gSearch.AddPdf(Bi210Pdf);
-				//lhFunction_gSearch.AddPdf(Po210Pdf);
-				//lhFunction_gSearch.AddPdf(DoubleNuePdf);
-				// lhFunction_gSearch.AddPdf(signalPdf);
-				// lhFunction_gSearch.AddSystematic(&conv);
+				// lh.SetBufferAsOverflow(false);
+				// lh.SetBuffer(0,10,10);
+				//lh.SetDataPdf(DataPdf);
+				//lh.AddPdf(Bi210Pdf);
+				//lh.AddPdf(Po210Pdf);
+				//lh.AddPdf(DoubleNuePdf);
+				// lh.AddPdf(signalPdf);
+				// lh.AddSystematic(&conv);
 				//
 				std::cout << "Built LH functions " << std::endl;
 
@@ -272,7 +304,7 @@ int main(){
 
 
 				// ////////////     Now perform the fits ////////////         
-				FitResult result_minuit = minuit.Optimise(&lhFunction_gSearch);
+				FitResult result_minuit = minuit.Optimise(&lh);
 
 				std::vector<double> fit_minuit = result_minuit.GetBestFit();
 				std::cout<<"Minuit Results, pdf 0 = bkg, 1 = sig"<<std::endl;
@@ -292,7 +324,7 @@ int main(){
 
 								std::vector<double> sigmas(inputFiles.size(),10); 
 								metHast.SetSigmas(sigmas); 
-								FitResult result_metHast = metHast.Optimise(&lhFunction_gSearch); 
+								FitResult result_metHast = metHast.Optimise(&lh); 
 
 								std::vector<double> fit_metHast =result_metHast.GetBestFit();         
 								std::cout<<"MetHast Results, pdf 0 = bkg, 1 = sig"<<std::endl; 
