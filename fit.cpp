@@ -83,12 +83,22 @@ TH1D* diffHist(TH1D * h1,TH1D * h2){
 //
 
 int main(){        
+				bool QmetHast=true;
 				std::vector<std::string> inputFiles;
 				inputFiles.push_back("completeBi210.ntuple_oxsx.root");
 				inputFiles.push_back("completePo210.ntuple_oxsx.root");
 				inputFiles.push_back("complete2b2n.ntuple_oxsx.root");
+				inputFiles.push_back("testData/TeLoaded/C14/complete_C14.ntuple_oxsx.root");
+
+				std::vector<std::string> names;
+				names.push_back("data");
+				names.push_back("Bi210");
+				names.push_back("Po210");
+				names.push_back("2n2b");
+				names.push_back("C14");
 
 				std::vector<std::string> inputTrees;
+				inputTrees.push_back("output");
 				inputTrees.push_back("output");
 				inputTrees.push_back("output");
 				inputTrees.push_back("output");
@@ -114,6 +124,7 @@ int main(){
 				rates.push_back(1000); //Bi210
 				rates.push_back(1000); //Po210
 				rates.push_back(1000); //2n2b
+				rates.push_back(1000); //2n2b
 				// rates.push_back(427368); //Bi210
 				// rates.push_back(1.74e7); //Po210
 				// rates.push_back(100000); //2n2b
@@ -129,6 +140,7 @@ int main(){
 								BinnedPdf Pdf(axes);
 								std::cout<<"After PDF"<<std::endl;
 								binnedPDFList.push_back(Pdf);
+								std::cout << binnedPDFList.size()<<" i = "<<i << std::endl;
 								binnedPDFList.at(i).SetDataRep(dataRep);
 
 
@@ -150,7 +162,7 @@ int main(){
 								TCanvas * defCan = new TCanvas();
 								histList.push_back(PdfConverter::ToTH1D(binnedPDFList[i],false));
 								histList[i].Draw();
-								defCan->Print("Bi210Pdf.png");
+								defCan->Print(Form("Pdf_%d.png",i));
 				}
 
 				BinnedPdf DataPdf(axes);
@@ -190,23 +202,17 @@ int main(){
 				comPlotcopy->SetMaximum(1);
 				// comPlotcopy->DrawNormalized();
 				comPlotcopy->Draw();
-				histList[1].SetLineColor(kRed);
-				histList[1].SetLineWidth(2);
-				histList[1].Draw("same");
-				histList[2].SetLineColor(kBlue);
-				histList[2].SetLineWidth(2);
-				histList[2].Draw("same");
-				histList[3].SetLineColor(kBlack);
-				histList[3].SetLineWidth(2);
-				histList[3].Draw("same");
-
-
 				TLegend* normleg =new TLegend(0.1,0.7,0.48,0.9);
-				// TLegend* normleg =new TLegend(0.7,0.7,0.9,0.9);
 				normleg->AddEntry(comPlotcopy,"Normalised Data","lf");
-				normleg->AddEntry(&histList[1],"Bi210 Pdf","lf");
-				normleg->AddEntry(&histList[2],"Po210 Pdf","lf");
-				normleg->AddEntry(&histList[3],"2#nu#beta#beta pdf","lf");
+				//Start at i=1 because histList[0] is data.
+
+				for (int i = 1; i < histList.size(); i++) {
+								std::cout << histList.size() << std::endl;
+								histList[i].SetLineColor(i);
+								histList[i].SetLineWidth(2);
+								histList[i].Draw("same");
+								normleg->AddEntry(&histList[i],(names[i]+" pdf").c_str(),"lf");
+				}
 				normleg->Draw();
 				normCan->Print("normPlot.png");
 
@@ -256,12 +262,6 @@ int main(){
 								InitialErrors.push_back(1);
 				}
 
-				// GridSearch gSearch;
-				//  
-				// gSearch.SetMaxima(maxima);
-				// gSearch.SetMinima(minima);
-				// gSearch.SetStepSizes(stepsizes);
-				//
 				Minuit minuit;
 
 				minuit.SetMaxima(maxima);
@@ -272,13 +272,7 @@ int main(){
 
 
 				// ////////////     Now perform the fits ////////////         
-				// FitResult result_gSearch = gSearch.Optimise(&lhFunction_gSearch); 
 				FitResult result_minuit = minuit.Optimise(&lhFunction_gSearch);
-
-				// std::vector<double> fit_gSearch = result_gSearch.GetBestFit(); 
-				// std::vector<double> fit_gSearch(2,1);  
-				// result_gSearch.Print(); 
-				// result_gSearch.SaveAs("simpleFit_result_gSearch.txt"); 
 
 				std::vector<double> fit_minuit = result_minuit.GetBestFit();
 				std::cout<<"Minuit Results, pdf 0 = bkg, 1 = sig"<<std::endl;
@@ -286,34 +280,35 @@ int main(){
 				result_minuit.SaveAs("simpleFit_result_minuit.txt");
 
 
-				//----------------------MetHast--------------------------
-				MetropolisHastings metHast; 
-				// metHast.SetInitialTrial(fit_minuit);
-				metHast.SetMaxIter(100000); 
-				metHast.SetMaxima(maxima); 
-				metHast.SetMinima(minima);         
-				metHast.SetFlipSign(true); 
-				metHast.SetTestStatLogged(true); 
+				if(QmetHast){
+								//----------------------MetHast--------------------------
+								MetropolisHastings metHast; 
+								// metHast.SetInitialTrial(fit_minuit);
+								metHast.SetMaxIter(100000); 
+								metHast.SetMaxima(maxima); 
+								metHast.SetMinima(minima);         
+								metHast.SetFlipSign(true); 
+								metHast.SetTestStatLogged(true); 
 
-				std::vector<double> sigmas(3,10); 
-				metHast.SetSigmas(sigmas); 
-				FitResult result_metHast = metHast.Optimise(&lhFunction_gSearch); 
+								std::vector<double> sigmas(inputFiles.size(),10); 
+								metHast.SetSigmas(sigmas); 
+								FitResult result_metHast = metHast.Optimise(&lhFunction_gSearch); 
 
-				std::vector<double> fit_metHast =result_metHast.GetBestFit();         
-				std::cout<<"MetHast Results, pdf 0 = bkg, 1 = sig"<<std::endl; 
-				// std::vector<double> fit_metHast(2,1); 
-				std::vector<size_t> indices; 
-				indices.push_back(0);
-				indices.push_back(1);
-				Histogram hist = result_metHast.GetStatSpace(); 
-				PdfConverter::ToTH2D(hist.Marginalise(indices)).SaveAs("lh_2d.root"); 
-				// PdfConverter::ToTH1D(hist.Marginalise(0)).SaveAs("pdf_norm0.root"); 
-				// PdfConverter::ToTH1D(hist.Marginalise(1)).SaveAs("pdf_norm1.root"); 
-				// PdfConverter::ToTH1D(hist.Marginalise(2)).SaveAs("pdf_norm2.root"); 
-				// PdfConverter::ToTH1D(hist.Marginalise(3)).SaveAs("pdf_norm3.root"); 
-				result_metHast.Print(); 
-				result_metHast.SaveAs("simpleFit_result_metHast.txt"); 
-
+								std::vector<double> fit_metHast =result_metHast.GetBestFit();         
+								std::cout<<"MetHast Results, pdf 0 = bkg, 1 = sig"<<std::endl; 
+								// std::vector<double> fit_metHast(2,1); 
+								std::vector<size_t> indices; 
+								indices.push_back(0);
+								indices.push_back(1);
+								Histogram hist = result_metHast.GetStatSpace(); 
+								PdfConverter::ToTH2D(hist.Marginalise(indices)).SaveAs("lh_2d.root"); 
+								// PdfConverter::ToTH1D(hist.Marginalise(0)).SaveAs("pdf_norm0.root"); 
+								// PdfConverter::ToTH1D(hist.Marginalise(1)).SaveAs("pdf_norm1.root"); 
+								// PdfConverter::ToTH1D(hist.Marginalise(2)).SaveAs("pdf_norm2.root"); 
+								// PdfConverter::ToTH1D(hist.Marginalise(3)).SaveAs("pdf_norm3.root"); 
+								result_metHast.Print(); 
+								result_metHast.SaveAs("simpleFit_result_metHast.txt"); 
+				}
 				// ///////////////Setting up the histograms ///////////////////// 
 
 				gStyle->SetOptStat(kFALSE); 
@@ -328,53 +323,41 @@ int main(){
 
 				}
 
-				// TH1D * complete_gSearch= (TH1D*) scaledBg_gSearch->Clone(); 
-				// TH1D * complete_minuit= (TH1D*) clone_histList[0]->Clone(); 
+				TH1D * complete_blank= new TH1D("","",60,0,3); 
 				TH1D * complete_minuit= new TH1D("","",60,0,3); 
-				// TH1D * complete_metHast=(TH1D*) scaledBg_metHast->Clone(); 
+				TH1D * complete_metHast= new TH1D("","",60,0,3); 
 
-				// complete_gSearch->Add(scaledBg_gSearch,scaledSig_gSearch,1,1); 
-				// THStack hs("hs","test stacked histograms");
-				// hs.Add(clone_histList[0]);
-				// hs.Add(clone_histList[1]);
-				// hs.Add(clone_histList[2]);
-				// hs.Add(clone_histList[3]);
-				// complete_minuit->Add(clone_histList[1],clone_histList[2],1,1); 
-				complete_minuit->Add(clone_histList[1],1); 
-				complete_minuit->Add(clone_histList[2],1); 
-				complete_minuit->Add(clone_histList[3],1); 
-				// std::cout<<"Get here"<<std::endl;
-				//complete_metHast->Add(scaledBg_metHast,scaledSig_metHast,1,1); 
+				for (int i = 1; i <clone_histList.size(); i++) {
+								complete_minuit->Add(clone_histList[i],1); 
+				}
 
-				TCanvas * fitCan= new TCanvas(); 
 
-				histList[0].SetFillColorAlpha(kGreen,0.5); 
-				// hs.Draw("nostack"); 
-				// hs.Draw(); 
-				// histList[0].Draw(); 
-
-				////complete_gSearch->SetLineColor(kBlue); 
-				////complete_gSearch->SetLineWidth(2); 
 				complete_minuit->SetLineColor(kRed); 
 				complete_minuit->SetLineWidth(2); 
-				////complete_metHast->SetLineColor(kBlack); 
-				////complete_metHast->SetLineWidth(2); 
+				complete_minuit->SetFillColorAlpha(kRed,0.5); 
+				if(QmetHast){
+								for (int i = 1; i <clone_histList.size(); i++) {
+												complete_metHast->Add(clone_histList[i],1); 
+								}
 
-				////complete_gSearch->SetFillColorAlpha(kBlue,0.5); 
-				// histList[0].SetFillColorAlpha(kRed,0.5); 
-				////complete_metHast->SetFillColorAlpha(kBlack,0.5); 
+								complete_metHast->SetLineColor(kBlack); 
+								complete_metHast->SetLineWidth(2); 
+								complete_metHast->SetFillColorAlpha(kBlack,0.5); 
+				}
 
-				////complete_gSearch->Draw("same"); 
 
-				// histList[0].Draw(); 
+				TCanvas * fitCan= new TCanvas(); 
+				complete_blank->SetTitle("Complete spectra for different methods"); 
+				complete_blank->GetXaxis()->SetTitle("Energy (Mev)"); 
+				complete_blank->GetYaxis()->SetTitle("Counts/ 50 keV bin"); 
+				complete_blank->SetMaximum(500);
+				complete_blank->Draw(); 
 				complete_minuit->Draw("same"); 
-				// complete_minuit->Draw(); 
-				////complete_metHast->Draw("same"); 
+				if(QmetHast) complete_metHast->Draw("same"); 
 
 				TLegend* leg =new TLegend(0.7,0.7,0.9,0.9); 
-				////leg->AddEntry(complete_gSearch,"Grid Search","lf"); 
 				leg->AddEntry(complete_minuit,"Minuit","lf"); 
-				////leg->AddEntry(complete_metHast,"Metropolis Hastings","lf"); 
+				if(QmetHast) leg->AddEntry(complete_metHast,"Metropolis Hastings","lf"); 
 				leg->Draw(); 
 
 				fitCan->Print("All_Fits.png"); 
@@ -394,20 +377,17 @@ int main(){
 				pad1->SetBottomMargin(0.00); 
 				gPad->RedrawAxis();  
 
+				histList[0].SetTitle("Spectrum fit with fractional bin error");
+				histList[0].GetYaxis()->SetTitle("Counts / 50 keV bin");
+				histList[0].GetYaxis()->SetTitleOffset(1); 
+				histList[0].SetFillColorAlpha(kGreen,0.5); 
 				histList[0].SetMaximum(500); 
 				histList[0].Draw(); 
 				complete_minuit->Draw("same e"); 
-				// comPlot.Draw(); 
-				// complete_gSearch->Draw("same"); 
-				// complete_metHast->Draw("same"); 
+				if(QmetHast) complete_metHast->Draw("same e"); 
 				leg->Draw(); 
-				// complete_minuit->GetXaxis()->SetTitle("Energy (MeV)"); 
-				// complete_minuit->GetYaxis()->SetTitle("Frac error"); 
-				histList[0].SetTitle("Spectrum fit with fractional bin error");
-				histList[0].GetYaxis()->SetTitle("Counts");
-				histList[0].GetYaxis()->SetTitleOffset(1); 
 				diff->cd(); 
-				// // -------------- Bottom panel 
+				// -------------- Bottom panel 
 				TPad *pad2 = new TPad("pad2","pad2",0,0.0,1,0.3); 
 				pad2->SetTopMargin(0.00); 
 				pad2->Draw(); 
@@ -419,17 +399,11 @@ int main(){
 
 				// TH1D * diff_gSearch= diffHist(&comPlot,complete_gSearch); 
 				TH1D * diff_minuit= diffHist(&histList[0],complete_minuit); 
-				// TH1D * diff_metHast= diffHist(&comPlot,complete_metHast); 
-				// diff_gSearch->SetLineColor(kBlue); 
-				// diff_gSearch->SetLineWidth(2); 
 				diff_minuit->SetLineColor(kRed); 
 				diff_minuit->SetLineWidth(2); 
-				// diff_metHast->SetLineColor(kBlack); 
-				// diff_metHast->SetLineWidth(2); 
-
-				// diff_gSearch->SetFillColorAlpha(kBlue,0.1); 
 				diff_minuit->SetFillColorAlpha(kRed,0.1); 
-				// diff_metHast->SetFillColorAlpha(kBlack,0.1); 
+
+
 
 				diff_minuit->GetXaxis()->SetTitle("Energy (MeV)"); 
 				diff_minuit->GetYaxis()->SetTitle("Fractional bin error"); 
@@ -438,20 +412,16 @@ int main(){
 				diff_minuit->GetXaxis()->SetTitleSize(0.1); 
 				diff_minuit->GetYaxis()->SetLabelSize(0.1); 
 				diff_minuit->GetYaxis()->SetTitleSize(0.1); 
-
-				// diff_gSearch->GetXaxis()->SetTitle("Energy (MeV)"); 
-				// diff_gSearch->GetYaxis()->SetTitle("Frac error"); 
-				// diff_gSearch->GetXaxis()->SetLabelSize(0.1); 
-				// diff_gSearch->GetXaxis()->SetTitleSize(0.1); 
-				// diff_gSearch->GetYaxis()->SetLabelSize(0.1); 
-				// diff_gSearch->GetYaxis()->SetTitleSize(0.1); 
-
-				// histList[0].Draw(); 
-				// complete_minuit->Draw(); 
-				// diff_gSearch->Draw(); 
-				// diff_minuit->Draw("same"); 
+				
 				diff_minuit->Draw(); 
-				// diff_metHast->Draw("same"); 
+
+				if(QmetHast){
+							 	TH1D * diff_metHast= diffHist(&histList[0],complete_metHast); 
+								diff_metHast->SetLineColor(kBlack); 
+								diff_metHast->SetLineWidth(2); 
+								diff_metHast->SetFillColorAlpha(kBlack,0.1); 
+								diff_metHast->Draw("same");
+				}
 				// gStyle->SetOptStat(0); 
 
 				diff->Print("doublePlanel.png"); 
