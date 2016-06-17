@@ -3,6 +3,7 @@
 
 #include "util.h"
 #include <BinnedPdf.h>        
+#include <Rand.h>
 #include <string>        
 #include <ROOTNtuple.h>        
 #include <BinnedNLLH.h>        
@@ -49,32 +50,37 @@
 
 double find2n2bRate(double percentage=0.5,double fidRad=6000)
 {
-	//This function returns the 2n2b rate given a % loading and fid radius.
-	double Vratio= pow(fidRad,3)/pow(6000,3);	
-	std::cout << "Volume ratio = "<<Vratio << std::endl;
-	double massOfLABPPO=(7.8e5)*Vratio;
-	std::cout << "Mass of LABPPO = "<<massOfLABPPO << std::endl;
-	double rawTeMass= percentage*massOfLABPPO/100;
-	std::cout << "Raw mass of Te = "<<rawTeMass << std::endl;
-	double _130TeMass= 0.3408*rawTeMass;
-	std::cout << "130Te mass = "<<_130TeMass << std::endl;
-	double _130TeHalflife= 7e20;
-	std::cout << "130Te halflife = "<<_130TeHalflife << std::endl;
-	double decayrate=log(2)/_130TeHalflife;
-	std::cout << "decay rate = "<<decayrate << std::endl;
-	double molarMassTe=129.906;
-	std::cout << "130Te molar mass = "<<molarMassTe << std::endl;
-	double molesOfTe=molarMassTe*_130TeMass;
-	std::cout << "Number of moles of 130Te = "<<molesOfTe << std::endl;
-	double numberOfParticles=molesOfTe*molarMassTe;
-	std::cout << "num of particles = "<<numberOfParticles<< std::endl;
-	double numOfEvents=numberOfParticles*decayrate*6.022e23;
-	std::cout << "Number of events  = "<<numOfEvents  << std::endl;
-	std::cout << "check this function again.  << std::endl;
+				//This function returns the 2n2b rate given a % loading and fid radius.
+				double Vratio= pow(fidRad,3)/pow(6000,3);	
+				std::cout << "Volume ratio = "<<Vratio << std::endl;
+				double massOfLABPPO=(7.8e5)*Vratio;
+				std::cout << "Mass of LABPPO = "<<massOfLABPPO << std::endl;
+				double rawTeMass= percentage*massOfLABPPO/100;
+				std::cout << "Raw mass of Te = "<<rawTeMass << std::endl;
+				double _130TeMass= 0.3408*rawTeMass;
+				std::cout << "130Te mass = "<<_130TeMass << std::endl;
+				double _130TeHalflife= 7e20;
+				std::cout << "130Te halflife = "<<_130TeHalflife << std::endl;
+				double decayrate=log(2)/_130TeHalflife;
+				std::cout << "decay rate = "<<decayrate << std::endl;
+				double molarMassTe=129.906;
+				std::cout << "130Te molar mass = "<<molarMassTe << std::endl;
+				double molesOfTe=molarMassTe*_130TeMass;
+				std::cout << "Number of moles of 130Te = "<<molesOfTe << std::endl;
+				double numberOfParticles=molesOfTe*molarMassTe;
+				std::cout << "num of particles = "<<numberOfParticles<< std::endl;
+				double numOfEvents=numberOfParticles*decayrate*6.022e23;
+				std::cout << "Number of events  = "<<numOfEvents  << std::endl;
+				std::cout << "check this function again."  << std::endl;
 
-	return numOfEvents;
+				return numOfEvents;
 }
 
+double scaleForTime(double yearRate,double runtime){
+				//Should be given the runtime in days and yearly rates (events per year).
+				return yearRate*runtime/365;
+
+}
 
 TH1D* diffHist(TH1D * h1,TH1D * h2){
 
@@ -115,11 +121,13 @@ TH1D* diffHist(TH1D * h1,TH1D * h2){
 int main(){        
 				bool QmetHast=true;
 				bool QSys=false;
+				Rand::SetSeed(0);
 				std::vector<std::string> inputFiles;
 				inputFiles.push_back("testData/TeLoaded/Bi210/complete_Bi210.ntuple_oxsx.root");
 				inputFiles.push_back("testData/TeLoaded/Po210/complete_Po210.ntuple_oxsx.root");
 				inputFiles.push_back("testData/TeLoaded/2n2b/complete_2n2b.ntuple_oxsx.root");
 				inputFiles.push_back("testData/TeLoaded/C14/complete_C14.ntuple_oxsx.root");
+				// inputFiles.push_back("testData/TeLoaded/0n2b/complete_0n2b.ntuple_oxsx.root");
 
 				std::vector<std::string> names;
 				names.push_back("data");
@@ -127,12 +135,14 @@ int main(){
 				names.push_back("Po210");
 				names.push_back("2n2b");
 				names.push_back("C14");
+				// names.push_back("0n2b");
 
 				std::vector<std::string> inputTrees;
 				inputTrees.push_back("output");
 				inputTrees.push_back("output");
 				inputTrees.push_back("output");
 				inputTrees.push_back("output");
+				// inputTrees.push_back("output");
 
 				////////////////////        1. Set Up PDFs //      //////////////////        
 
@@ -154,13 +164,20 @@ int main(){
 				std::vector<double> rates;
 				rates.push_back(1000); //Bi210
 				rates.push_back(1000); //Po210
-				rates.push_back(find2n2bRate()); //2n2b
+
+				rates.push_back(1000); //2n2b
 				rates.push_back(1000); //C14
-				//rates for a year of data.
-				// rates.push_back(427368); //Bi210
-				// rates.push_back(1.74e7); //Po210
-				// rates.push_back(6.0997e7); //2n2b not known
-				// rates.push_back(3.78e9); //C14
+				// rates.push_back(1000); //0n2b
+				//rates for a year of data. From DocDb <find link>
+				// double Bi210Rate=427368;
+				// double Po210Rate=1.74e7;
+				// double C14Rate=3.78e9;
+				// double _2n2bRate=find2n2bRate();
+				// std::cout <<"Number of 2n2b scaled for 1 day = "<<scaleForTime(_2n2bRate,1)  << std::endl;
+				// rates.push_back(Bi210Rate); //Bi210
+				// rates.push_back(Po210Rate); //Po210
+				// rates.push_back(_2n2bRate); //2n2b not known
+				// rates.push_back(C14Rate); //C14
 
 				std::vector<ROOTNtuple*> ntupleList;
 				std::vector<BinnedPdf> binnedPDFList;
@@ -200,7 +217,8 @@ int main(){
 
 				BinnedPdf DataPdf(axes);
 				DataPdf.SetDataRep(dataRep);        
-				OXSXDataSet fakeData= dataGen.ExpectedRatesDataSet();
+				// OXSXDataSet fakeData= dataGen.ExpectedRatesDataSet();
+				OXSXDataSet fakeData= dataGen.PoissonFluctuatedDataSet();
 				for(size_t i = 0; i < fakeData.GetNEntries(); i++){        
 								//Cut between 0 and 3.
 								if(boxCut.PassesCut(fakeData.GetEntry(i))){
@@ -249,7 +267,7 @@ int main(){
 				normleg->Draw();
 				normCan->Print("normPlot.png");
 
-	
+
 				// Convolution conv;
 				// Gaussian gaus(0,1); 
 				// conv.SetFunction(&gaus);
@@ -444,11 +462,11 @@ int main(){
 				diff_minuit->GetXaxis()->SetTitleSize(0.1); 
 				diff_minuit->GetYaxis()->SetLabelSize(0.1); 
 				diff_minuit->GetYaxis()->SetTitleSize(0.1); 
-				
+
 				diff_minuit->Draw(); 
 
 				if(QmetHast){
-							 	TH1D * diff_metHast= diffHist(&histList[0],complete_metHast); 
+								TH1D * diff_metHast= diffHist(&histList[0],complete_metHast); 
 								diff_metHast->SetLineColor(kBlack); 
 								diff_metHast->SetLineWidth(2); 
 								diff_metHast->SetFillColorAlpha(kBlack,0.1); 
