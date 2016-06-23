@@ -148,7 +148,7 @@ int main(){
 
 				// Set up binning        
 				AxisCollection axes;
-				axes.AddAxis(PdfAxis("energy", 0., 3, 60,"Energy"));
+				axes.AddAxis(PdfAxis("energy", 0, 3, 60,"Energy"));
 
 				// Only interested in first bit of data ntuple        
 				DataRepresentation dataRep(0);        
@@ -290,8 +290,8 @@ int main(){
 				if (QSys) lh.AddSystematic(&conv);
 //In two different loops to find the see the difference between with buffer and without.
 				if (QSys){
-								lh.SetBufferAsOverflow(false);
-								lh.SetBuffer(0,10,10);
+								// lh.SetBufferAsOverflow(false);
+								// lh.SetBuffer(0,10,10);
 				}
 				std::cout << "Built LH functions " << std::endl;
 
@@ -311,12 +311,15 @@ int main(){
 				}
 				// Set up the optimisation
 				if(QSys){
-								minima.push_back(-10.); //low Gaussian mean 
+								minima.push_back(-0.002); //low Gaussian mean 
 								minima.push_back(0.); 	//low gaussian sigma 
-								maxima.push_back(10.);	//high Gaussian mean 
-								maxima.push_back(2.); 	//high gaussian sigma
-								InitialValues.push_back(-2.);
-								InitialValues.push_back(5.);
+
+								maxima.push_back(0.002);	//high Gaussian mean 
+								maxima.push_back(0.5); 	//high gaussian sigma
+
+								InitialValues.push_back(0.);
+								InitialValues.push_back(0.);
+
 								InitialErrors.push_back(0.1);
 								InitialErrors.push_back(0.1);
 				}
@@ -331,6 +334,7 @@ int main(){
 
 
 				// ////////////     Now perform the fits ////////////         
+				std::cout << "Now starting optimisation." << std::endl;
 				FitResult result_minuit = minuit.Optimise(&lh);
 
 				std::vector<double> fit_minuit = result_minuit.GetBestFit();
@@ -349,7 +353,8 @@ int main(){
 								metHast.SetFlipSign(true); 
 								metHast.SetTestStatLogged(true); 
 
-								std::vector<double> sigmas(inputFiles.size(),10); 
+								std::vector<double> sigmas(6,1); 
+								// std::vector<double> sigmas(inputFiles.size(),10); 
 								metHast.SetSigmas(sigmas); 
 								FitResult result_metHast = metHast.Optimise(&lh); 
 
