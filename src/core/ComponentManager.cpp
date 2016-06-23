@@ -24,12 +24,15 @@ ComponentManager::SetParameters(const std::vector<double>& params_){
     std::vector<double>::const_iterator it = params_.begin();
     fComponents[0] -> SetParameters(std::vector<double>(it, 
                                                         it + fParamCounts.at(0)));
+
+    size_t nUnpacked = fComponents.at(0) -> GetParameterCount();
     for(size_t i = 1; i < fComponents.size(); i++){
-        fComponents[i] -> SetParameters(std::vector<double>(it + fParamCounts.at(i-1),
-                                                            it  + fParamCounts.at(i-1) +
+        fComponents[i] -> SetParameters(std::vector<double>(it + nUnpacked,
+                                                            it  + nUnpacked
                                                             + fParamCounts.at(i)
                                                             )
                                         );
+        nUnpacked += fParamCounts.at(i);
     }
 }
 
