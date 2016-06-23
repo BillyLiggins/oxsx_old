@@ -120,7 +120,7 @@ TH1D* diffHist(TH1D * h1,TH1D * h2){
 
 int main(){        
 				bool QmetHast=true;
-				bool QSys=false;
+				bool QSys=true;
 				Rand::SetSeed(0);
 				std::vector<std::string> inputFiles;
 				inputFiles.push_back("testData/TeLoaded/Bi210/complete_Bi210.ntuple_oxsx.root");
@@ -267,14 +267,17 @@ int main(){
 				normleg->Draw();
 				normCan->Print("normPlot.png");
 
+//Setting up the systematics 
 
-				// Convolution conv;
-				// Gaussian gaus(0,1); 
-				// conv.SetFunction(&gaus);
-				// conv.SetAxes(axes);
-				// DataRepresentation DataRep(0);
-				// conv.SetDataRep(DataRep);
-				// conv.SetPdfDataRep(DataRep);
+				Convolution conv;
+				Gaussian gaus(0,1); 
+				conv.SetFunction(&gaus);
+				conv.SetAxes(axes);
+				DataRepresentation DataRep(0);
+				conv.SetDataRep(DataRep);
+				conv.SetPdfDataRep(DataRep);
+
+
 
 				///////////////////// Setting up the lhFunctions ////////////////////////
 
@@ -284,17 +287,12 @@ int main(){
 								lh.AddPdf(binnedPDFList[i]);
 
 				}
-				// lh.AddSystematic(&conv);
-
-				// lh.SetBufferAsOverflow(false);
-				// lh.SetBuffer(0,10,10);
-				//lh.SetDataPdf(DataPdf);
-				//lh.AddPdf(Bi210Pdf);
-				//lh.AddPdf(Po210Pdf);
-				//lh.AddPdf(DoubleNuePdf);
-				// lh.AddPdf(signalPdf);
-				// lh.AddSystematic(&conv);
-				//
+				if (QSys) lh.AddSystematic(&conv);
+//In two different loops to find the see the difference between with buffer and without.
+				if (QSys){
+								lh.SetBufferAsOverflow(false);
+								lh.SetBuffer(0,10,10);
+				}
 				std::cout << "Built LH functions " << std::endl;
 
 
@@ -310,6 +308,17 @@ int main(){
 								stepsizes.push_back(1);
 								InitialValues.push_back(100000);
 								InitialErrors.push_back(1);
+				}
+				// Set up the optimisation
+				if(QSys){
+								minima.push_back(-10.); //low Gaussian mean 
+								minima.push_back(0.); 	//low gaussian sigma 
+								maxima.push_back(10.);	//high Gaussian mean 
+								maxima.push_back(2.); 	//high gaussian sigma
+								InitialValues.push_back(-2.);
+								InitialValues.push_back(5.);
+								InitialErrors.push_back(0.1);
+								InitialErrors.push_back(0.1);
 				}
 
 				Minuit minuit;
