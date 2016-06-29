@@ -1,7 +1,7 @@
 // // a simple fit in energy for 2n2b, po210 and bi210 backgrounds.        
 // this is very messy you should make it so that the everything is in vectors.
 
-#include "util.h"
+// #include "util.h"
 #include <BinnedPdf.h>        
 #include <Rand.h>
 #include <string>        
@@ -39,14 +39,13 @@
 #include <TPaveStats.h> 
 #include <TAttFill.h>
 #include <math.h>	
+#include <iomanip>
 
-//const std::string Bi210File    = "completeBi210.ntuple_oxsx.root";
-//const std::string Po210File    = "completePo210.ntuple_oxsx.root";
-//const std::string DoubleNueFile   = "complete2b2n.ntuple_oxsx.root"; 
-
-//const std::string DoubleNueTreeName  = "output";
-//const std::string Bi210TreeName  = "output";
-//const std::string Po210TreeName   = "output";
+template<typename T> void printElement(T t, const int& width)
+{
+				 const char separator    = ' ';
+				std::cout << std::left << std::setw(width) << std::setfill(separator) << t;
+}
 
 double find2n2bRate(double percentage=0.5,double fidRad=6000)
 {
@@ -82,6 +81,17 @@ double scaleForTime(double yearRate,double runtime){
 
 }
 
+std::vector<double> normRates(std::vector<double>& rates , double normConstant){
+				//Should be given the runtime in days and yearly rates (events per year).
+				double highestRate=*max_element(rates.begin(),rates.end());
+				std::vector<double> scaledRates;
+				std::cout << "highest rate = "<<highestRate << std::endl;
+				for (int i = 0; i < rates.size(); i++) {
+								scaledRates.push_back(rates[i]*normConstant/highestRate);	
+				}
+				return scaledRates;
+
+}
 TH1D* diffHist(TH1D * h1,TH1D * h2){
 
 
@@ -116,10 +126,31 @@ TH1D* diffHist(TH1D * h1,TH1D * h2){
 
 
 }
-//
+
+void normChecker(std::vector<double>& expectedrate, std::vector<double>& fit_result){
+				// std::setw(2);
+				// std::setprecision(5);
+				std::cout.precision(5);
+				std::cout<<"Comparison between expected rates and fit rates:"<<std::endl;
+				std::cout<<"------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
+				for (int i = 0; i < expectedrate.size(); i++) {
+					std::cout<<"Expected rate:\t"	
+									<<expectedrate[i]<<"\t|\t fit rate:\t"
+									<<fit_result[i]<<"\t|\t Abs difference:\t"
+									<<fabs(expectedrate[i]-fit_result[i])<<"\t|\t Frac error:\t"
+									<<(expectedrate[i]-fit_result[i])/expectedrate[i]
+									<<std::endl;
+					std::cout<<"------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
+				}
+				int numberOfSystmatics= fit_result.size()-expectedrate.size();
+				if (numberOfSystmatics){
+				}
+}
 
 int main(){        
-				bool QmetHast=true;
+				bool QmetHast=false;
+				// bool QmetHast=true;
+				// bool QSys=false;
 				bool QSys=true;
 				Rand::SetSeed(0);
 				std::vector<std::string> inputFiles;
@@ -161,23 +192,37 @@ int main(){
 				 *************************** 2. Fill with data and normalise ******************************
 				 ******************************************************************************************/        
 
+				double daysOfData =0.001;
 				std::vector<double> rates;
 				rates.push_back(1000); //Bi210
 				rates.push_back(1000); //Po210
-
 				rates.push_back(1000); //2n2b
 				rates.push_back(1000); //C14
 				// rates.push_back(1000); //0n2b
+
 				//rates for a year of data. From DocDb <find link>
-				// double Bi210Rate=427368;
-				// double Po210Rate=1.74e7;
-				// double C14Rate=3.78e9;
-				// double _2n2bRate=find2n2bRate();
-				// std::cout <<"Number of 2n2b scaled for 1 day = "<<scaleForTime(_2n2bRate,1)  << std::endl;
-				// rates.push_back(Bi210Rate); //Bi210
-				// rates.push_back(Po210Rate); //Po210
-				// rates.push_back(_2n2bRate); //2n2b not known
-				// rates.push_back(C14Rate); //C14
+				double Bi210Rate=427368;
+				double Po210Rate=1.74e7;
+				double C14Rate=3.78e9;
+				double _2n2bRate=find2n2bRate();
+
+				// std::vector<double> RATES;
+				// RATES.push_back(Bi210Rate);
+				// RATES.push_back(Po210Rate);
+				// RATES.push_back(C14Rate);
+				// RATES.push_back(_2n2bRate);
+				// double highestRate=*max_element(RATES.begin(),RATES.end());
+				// rates=normRates(RATES, scaleForTime(highestRate,daysOfData));
+				
+				// rates.push_back(scaleForTime(Bi210Rate,daysOfData)); //Bi210
+				// rates.push_back(scaleForTime(Po210Rate,daysOfData)); //Po210
+				// rates.push_back(scaleForTime(_2n2bRate,daysOfData)); //2n2b
+				// rates.push_back(scaleForTime(C14Rate,daysOfData)); //C14
+
+				std::cout<<"Bi "<<scaleForTime(Bi210Rate,daysOfData)<<std::endl; //Bi210
+				std::cout<<"Po "<<scaleForTime(Po210Rate,daysOfData)<<std::endl; //Po210
+				std::cout<<"2b2n "<<scaleForTime(_2n2bRate,daysOfData)<<std::endl; //2n2b not known
+				std::cout<<"c14 "<<scaleForTime(C14Rate,daysOfData)<<std::endl; //C14
 
 				std::vector<ROOTNtuple*> ntupleList;
 				std::vector<BinnedPdf> binnedPDFList;
@@ -267,7 +312,7 @@ int main(){
 				normleg->Draw();
 				normCan->Print("normPlot.png");
 
-//Setting up the systematics 
+				//Setting up the systematics 
 
 				Convolution conv;
 				Gaussian gaus(0,1); 
@@ -282,17 +327,16 @@ int main(){
 				///////////////////// Setting up the lhFunctions ////////////////////////
 
 				BinnedNLLH lh;
-				lh.SetDataPdf(DataPdf); // initialise withe the data set
+				if (QSys){
+								lh.SetBufferAsOverflow(false);
+								lh.SetBuffer(0,5,5);
+				}
+				lh.SetDataPdf(DataPdf); // initialise with the data set
 				for(int i=0;i<binnedPDFList.size();i++){
 								lh.AddPdf(binnedPDFList[i]);
 
 				}
 				if (QSys) lh.AddSystematic(&conv);
-//In two different loops to find the see the difference between with buffer and without.
-				if (QSys){
-								// lh.SetBufferAsOverflow(false);
-								// lh.SetBuffer(0,10,10);
-				}
 				std::cout << "Built LH functions " << std::endl;
 
 
@@ -304,9 +348,9 @@ int main(){
 				std::vector<double> InitialErrors;
 				for(int i=0;i<binnedPDFList.size();i++){
 								minima.push_back(0);
-								maxima.push_back(140000);
+								maxima.push_back(12000);
 								stepsizes.push_back(1);
-								InitialValues.push_back(100000);
+								InitialValues.push_back(900);
 								InitialErrors.push_back(1);
 				}
 				// Set up the optimisation
@@ -338,11 +382,11 @@ int main(){
 				FitResult result_minuit = minuit.Optimise(&lh);
 
 				std::vector<double> fit_minuit = result_minuit.GetBestFit();
-				std::cout<<"Minuit Results, pdf 0 = bkg, 1 = sig"<<std::endl;
+				std::cout<<"Minuit Results, pdf 1 = bkg, 1 = sig"<<std::endl;
 				result_minuit.Print();
 				result_minuit.SaveAs("simpleFit_result_minuit.txt");
 
-
+				std::vector<double> fit_metHast;
 				if(QmetHast){
 								//----------------------MetHast--------------------------
 								MetropolisHastings metHast; 
@@ -353,12 +397,18 @@ int main(){
 								metHast.SetFlipSign(true); 
 								metHast.SetTestStatLogged(true); 
 
-								std::vector<double> sigmas(6,1); 
+								std::vector<double> sigmas; 
+								sigmas.push_back(1);
+								sigmas.push_back(1);
+								sigmas.push_back(1);
+								sigmas.push_back(1);
+								if(QSys)	sigmas.push_back(0.001);
+								if(QSys)	sigmas.push_back(0.001);
 								// std::vector<double> sigmas(inputFiles.size(),10); 
 								metHast.SetSigmas(sigmas); 
 								FitResult result_metHast = metHast.Optimise(&lh); 
 
-								std::vector<double> fit_metHast =result_metHast.GetBestFit();         
+								fit_metHast =result_metHast.GetBestFit();         
 								std::cout<<"MetHast Results, pdf 0 = bkg, 1 = sig"<<std::endl; 
 								// std::vector<double> fit_metHast(2,1); 
 								std::vector<size_t> indices; 
@@ -376,23 +426,25 @@ int main(){
 				// ///////////////Setting up the histograms ///////////////////// 
 
 				gStyle->SetOptStat(kFALSE); 
-				std::vector<TH1D*> clone_histList;
+				std::vector<TH1D*> clone_histList_minuit, clone_histList_metHast;
 				std::cout << "hist List length = "<<histList.size() << std::endl;
 
 				for(int i=0;i<histList.size();i++){
-								clone_histList.push_back((TH1D*) histList[i].Clone());
-								std::cout << "fit_scale = "<<fit_minuit[i] << std::endl;
+								clone_histList_minuit.push_back((TH1D*) histList[i].Clone());
+								clone_histList_metHast.push_back((TH1D*) histList[i].Clone());
+								if(i!=0) std::cout << "fit_scale = "<<fit_minuit[i-1] << std::endl;
 
-								if(i!=0){ clone_histList[i]->Scale(fit_minuit[i-1]);}
+								if(i!=0){ clone_histList_minuit[i]->Scale(fit_minuit[i-1]);}
+								if(i!=0 && QmetHast){ clone_histList_metHast[i]->Scale(fit_metHast[i-1]);}
 
 				}
 
-				TH1D * complete_blank= new TH1D("","",60,0,3); 
-				TH1D * complete_minuit= new TH1D("","",60,0,3); 
-				TH1D * complete_metHast= new TH1D("","",60,0,3); 
+				TH1D * complete_blank= new TH1D("complete_blank","",60,0,3); 
+				TH1D * complete_minuit= new TH1D("complete_minuit","",60,0,3); 
+				TH1D * complete_metHast= new TH1D("complete_metHast","",60,0,3); 
 
-				for (int i = 1; i <clone_histList.size(); i++) {
-								complete_minuit->Add(clone_histList[i],1); 
+				for (int i = 1; i <clone_histList_minuit.size(); i++) {
+								complete_minuit->Add(clone_histList_minuit[i],1); 
 				}
 
 
@@ -400,8 +452,8 @@ int main(){
 				complete_minuit->SetLineWidth(2); 
 				complete_minuit->SetFillColorAlpha(kRed,0.5); 
 				if(QmetHast){
-								for (int i = 1; i <clone_histList.size(); i++) {
-												complete_metHast->Add(clone_histList[i],1); 
+								for (int i = 1; i <clone_histList_metHast.size(); i++) {
+												complete_metHast->Add(clone_histList_metHast[i],1); 
 								}
 
 								complete_metHast->SetLineColor(kBlack); 
@@ -414,7 +466,7 @@ int main(){
 				complete_blank->SetTitle("Complete spectra for different methods"); 
 				complete_blank->GetXaxis()->SetTitle("Energy (Mev)"); 
 				complete_blank->GetYaxis()->SetTitle("Counts/ 50 keV bin"); 
-				complete_blank->SetMaximum(500);
+				complete_blank->SetMaximum(5000);
 				complete_blank->Draw(); 
 				complete_minuit->Draw("same"); 
 				if(QmetHast) complete_metHast->Draw("same"); 
@@ -445,7 +497,7 @@ int main(){
 				histList[0].GetYaxis()->SetTitle("Counts / 50 keV bin");
 				histList[0].GetYaxis()->SetTitleOffset(1); 
 				histList[0].SetFillColorAlpha(kGreen,0.5); 
-				histList[0].SetMaximum(500); 
+				histList[0].SetMaximum(2000); 
 				histList[0].Draw(); 
 				complete_minuit->Draw("same e"); 
 				if(QmetHast) complete_metHast->Draw("same e"); 
@@ -464,6 +516,7 @@ int main(){
 				// TH1D * diff_gSearch= diffHist(&comPlot,complete_gSearch); 
 				TH1D * diff_minuit= diffHist(&histList[0],complete_minuit); 
 				diff_minuit->SetLineColor(kRed); 
+				diff_minuit->SetMarkerStyle(3); 
 				diff_minuit->SetLineWidth(2); 
 				diff_minuit->SetFillColorAlpha(kRed,0.1); 
 
@@ -489,7 +542,15 @@ int main(){
 				// gStyle->SetOptStat(0); 
 
 				diff->Print("doublePlanel.png"); 
-				std::cout<<" Number diff = "<< histList[0].Integral() - fit_minuit[0]-fit_minuit[1]-fit_minuit[2] <<std::endl; 
+				std::cout<<" Number diff from he minuit fit = "<< histList[0].Integral() - fit_minuit[0]-fit_minuit[1]-fit_minuit[2]-fit_minuit[3] <<std::endl; 
+				if(QmetHast)	std::cout<<" Number diff from he metHast fit = "<< histList[0].Integral() - fit_metHast[0]-fit_metHast[1]-fit_metHast[2]-fit_minuit[3] <<std::endl; 
 
+				std::cout<<"Minuit"<<std::endl;
+				normChecker(rates,fit_minuit);
+				if(QmetHast){
+				std::cout<<"MetHast"<<std::endl;
+				normChecker(rates,fit_metHast);
+				}
+				// printElement(2.2445335,1);
 				return 0; 
 }
