@@ -1,0 +1,42 @@
+Outline of what the alpha beta fit should look like:
+
+ -So the ultimate goal is to slice in energy ( probably 0.1 MeV slices), find
+the Pdf of each of the alphas and betas, then attempt to fit to some test
+data. The goal is then to use the fit to subtract the alphas from each of the
+some other dataset and see what the resulting spectrum looks like.
+
+TODOs:
+
+	- BIG decision: When do you loop over energy.
+	- First you need PDFs. 
+	- Before that you need to split the MC into 3 sets, training, cross
+	  validation and blind. Would be nice if this is variable so get a method.
+	-	Think you have 2.5 mil of each, but then you have to think about a radial
+		cut*, so 20,60,20 split in data.
+	- So then get your pdfs.
+		
+	- Then run your fits, they should be to hard.
+	- The distributions will be Gaussian so shouldn't be that hard but you don't
+	  have to worry about that because the PDFs will give shapes and you only need
+		normalisations.
+	- So now that you have the normalisations what do you do ? 
+		+ This is a point and possibility a folk. The normalisation is no good if
+			you are not the working on the same size data set! Possibly 20:40:40
+			split.
+		+ You could fit a functional form but even then you need to to be over the
+			same data size.
+
+
+
+
+
+
+Ultimate Output:
+
+	- What is the ultimate output. A range of pdfs which spans over energy
+	  bins that can be used to subtract alphas and betas. This seems to be run
+		length dependent. So will have to be run for each analysis! 
+
+
+* Could you possible optimise the radial cut? Well you could but how would you
+  motivate it.
