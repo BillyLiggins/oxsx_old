@@ -74,6 +74,7 @@ double find2n2bRate(double percentage=0.5,double fidRad=6000)
 
 				return numOfEvents;
 }
+//After chatting to Jeanne she said you may need to apply the decaying forumla.
 
 double scaleForTime(double yearRate,double runtime){
 				//Should be given the runtime in days and yearly rates (events per year).
