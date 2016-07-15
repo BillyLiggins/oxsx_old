@@ -5,6 +5,8 @@
 #include <fstream>
 #include <ctime>
 #include <iomanip>
+#include <Exceptions.h>
+#include <Formatter.hpp>
 
 FitResult::~FitResult(){
     delete fStatSpace;
@@ -88,7 +90,9 @@ FitResult::GetParameterNames() const{
 void
 FitResult::Print() const{
     if(fParameterNames.size() != fBestFit.size())
-        throw 0;
+        throw NotFoundError(Formatter() << "Expected one name for each parameter - got " 
+                            << fParameterNames.size() << " names and " << fBestFit.size() << " params"
+                            );
 
     std::cout << "Fit Result: " << std::endl;
     for(size_t i = 0; i < fParameterNames.size(); i++){
