@@ -84,6 +84,8 @@ int main(){
 
 				TH1D betaPdfHist_energy = PdfConverter::ToTH1D(betaPdf.Marginalise(0),false);
 				TH1D alphaPdfHist_energy = PdfConverter::ToTH1D(alphaPdf.Marginalise(0),false);
+				betaPdfHist_energy.SetName("mcEdepQuenched_Beta");
+				alphaPdfHist_energy.SetName("mcEdepQuenched_Alpha");
 				TFile pdfFile("pdfs.root","update");
 				pdfFile.cd();
 				betaPdfHist_energy.Write();
