@@ -39,6 +39,7 @@
 #include <iomanip>
 
 
+
 double find2n2bRate(double percentage=0.5,double fidRad=6000)
 {
 				//This function returns the 2n2b rate given a % loading and fid radius.

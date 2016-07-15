@@ -2,6 +2,7 @@
 #define __UTIL__
 #include <TH1D.h>
 #include <iostream>
+#include <BinnedPdf.h>        
 
 // TH1D* diffHist(TH1D * h1,TH1D * h2);
 //TCanvas* doublePlot( const vector<TH1D>& histList);
@@ -14,4 +15,5 @@ TH1D* diffHist(TH1D * h1,TH1D * h2);
 
 void normChecker(std::vector<double>& expectedrate, std::vector<double>& fit_result);
 
+// void dataSetGenerator(double pdfSetSize, BinnedPdf& pdf
 #endif
