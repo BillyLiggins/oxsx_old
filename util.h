@@ -1,9 +1,17 @@
 #ifndef __UTIL__
 #define __UTIL__
+
 #include <TH1D.h>
+#include <BinnedPdf.h>        
+
+#include <string>
 #include <iostream>
 
-TH1D* diffHist(TH1D * h1,TH1D * h2);
-//TCanvas* doublePlot( const vector<TH1D>& histList);
+namespace	UTIL{
+std::vector<std::string> glob( const std::string& path, const std::string& start );
+}
+
+
+
 
 #endif
