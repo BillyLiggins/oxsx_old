@@ -230,6 +230,8 @@ int main(){
 				DataSetGenerator dataGen;
 
 				BoxCut boxCut(0,0,3);
+				CutCollection cutCol;
+				cutCol.AddCut(boxCut);
 				for(int i =0;i<inputFiles.size();i++){
 								std::cout<<"i = "<<i<<std::endl;
 								BinnedPdf Pdf(axes);
@@ -266,6 +268,8 @@ int main(){
 
 								BinnedPdf DataPdf(axes);
 								DataPdf.SetDataRep(dataRep);        
+
+								dataGen.SetCuts(cutCol);
 								OXSXDataSet fakeData= dataGen.ExpectedRatesDataSet();
 								// OXSXDataSet fakeData= dataGen.PoissonFluctuatedDataSet();
 								for(size_t i = 0; i < fakeData.GetNEntries(); i++){        
