@@ -1,7 +1,7 @@
 // // a simple fit in energy for 2n2b, po210 and bi210 backgrounds.        
 // this is very messy you should make it so that the everything is in vectors.
 
-// #include "util.h"
+#include "util.h"
 #include <BinnedPdf.h>        
 #include <Rand.h>
 #include <string>        
@@ -48,106 +48,106 @@ template<typename T> void printElement(T t, const int& width)
 				std::cout << std::left << std::setw(width) << std::setfill(separator) << t;
 }
 
-double find2n2bRate(double percentage=0.5,double fidRad=6000)
-{
-				//This function returns the 2n2b rate given a % loading and fid radius.
-				double Vratio= pow(fidRad,3)/pow(6000,3);	
-				std::cout << "Volume ratio = "<<Vratio << std::endl;
-				double massOfLABPPO=(7.8e5)*Vratio;
-				std::cout << "Mass of LABPPO = "<<massOfLABPPO << std::endl;
-				double rawTeMass= percentage*massOfLABPPO/100;
-				std::cout << "Raw mass of Te = "<<rawTeMass << std::endl;
-				double _130TeMass= 0.3408*rawTeMass;
-				std::cout << "130Te mass = "<<_130TeMass << std::endl;
-				double _130TeHalflife= 7e20;
-				std::cout << "130Te halflife = "<<_130TeHalflife << std::endl;
-				double decayrate=log(2)/_130TeHalflife;
-				std::cout << "decay rate = "<<decayrate << std::endl;
-				double molarMassTe=129.906;
-				std::cout << "130Te molar mass = "<<molarMassTe << std::endl;
-				double molesOfTe=molarMassTe*_130TeMass;
-				std::cout << "Number of moles of 130Te = "<<molesOfTe << std::endl;
-				double numberOfParticles=molesOfTe*molarMassTe;
-				std::cout << "num of particles = "<<numberOfParticles<< std::endl;
-				double numOfEvents=numberOfParticles*decayrate*6.022e23;
-				std::cout << "Number of events  = "<<numOfEvents  << std::endl;
-				std::cout << "check this function again."  << std::endl;
+// double find2n2bRate(double percentage=0.5,double fidRad=6000)
+// {
+// 				//This function returns the 2n2b rate given a % loading and fid radius.
+// 				double Vratio= pow(fidRad,3)/pow(6000,3);	
+// 				std::cout << "Volume ratio = "<<Vratio << std::endl;
+// 				double massOfLABPPO=(7.8e5)*Vratio;
+// 				std::cout << "Mass of LABPPO = "<<massOfLABPPO << std::endl;
+// 				double rawTeMass= percentage*massOfLABPPO/100;
+// 				std::cout << "Raw mass of Te = "<<rawTeMass << std::endl;
+// 				double _130TeMass= 0.3408*rawTeMass;
+// 				std::cout << "130Te mass = "<<_130TeMass << std::endl;
+// 				double _130TeHalflife= 7e20;
+// 				std::cout << "130Te halflife = "<<_130TeHalflife << std::endl;
+// 				double decayrate=log(2)/_130TeHalflife;
+// 				std::cout << "decay rate = "<<decayrate << std::endl;
+// 				double molarMassTe=129.906;
+// 				std::cout << "130Te molar mass = "<<molarMassTe << std::endl;
+// 				double molesOfTe=molarMassTe*_130TeMass;
+// 				std::cout << "Number of moles of 130Te = "<<molesOfTe << std::endl;
+// 				double numberOfParticles=molesOfTe*molarMassTe;
+// 				std::cout << "num of particles = "<<numberOfParticles<< std::endl;
+// 				double numOfEvents=numberOfParticles*decayrate*6.022e23;
+// 				std::cout << "Number of events  = "<<numOfEvents  << std::endl;
+// 				std::cout << "check this function again."  << std::endl;
+//
+// 				return numOfEvents;
+// }
+// //After chatting to Jeanne she said you may need to apply the decaying forumla.
 
-				return numOfEvents;
-}
-//After chatting to Jeanne she said you may need to apply the decaying forumla.
+// double scaleForTime(double yearRate,double runtime){
+// 				//Should be given the runtime in days and yearly rates (events per year).
+// 				return yearRate*runtime/365;
+//
+// }
 
-double scaleForTime(double yearRate,double runtime){
-				//Should be given the runtime in days and yearly rates (events per year).
-				return yearRate*runtime/365;
+// std::vector<double> normRates(std::vector<double>& rates , double normConstant){
+// 				//Should be given the runtime in days and yearly rates (events per year).
+// 				double highestRate=*max_element(rates.begin(),rates.end());
+// 				std::vector<double> scaledRates;
+// 				std::cout << "highest rate = "<<highestRate << std::endl;
+// 				for (int i = 0; i < rates.size(); i++) {
+// 								scaledRates.push_back(rates[i]*normConstant/highestRate);	
+// 				}
+// 				return scaledRates;
+//
+// }
 
-}
+// TH1D* diffHist(TH1D * h1,TH1D * h2){
+//
+//
+// 				double minBin=h1->GetXaxis()->GetXmin();
+// 				double maxBin=h1->GetXaxis()->GetXmax();
+// 				double sliceWidth=h1->GetXaxis()->GetBinWidth(1);
+// 				double numOfBins=h1->GetNbinsX();
+// 				std::cout<<"minBin = "<<minBin<<std::endl;
+// 				std::cout<<"maxBin = "<<maxBin<<std::endl;
+// 				std::cout<<"sliceWidth = "<<sliceWidth<<std::endl;
+// 				std::cout<<"number of bins = "<<numOfBins<<std::endl;
+//
+// 				TH1D* rhist = new TH1D("rhist","",numOfBins,minBin,maxBin);
+// 				for(double i=0;i<numOfBins;i++){
+// 								double h1cont=h1->GetBinContent(i);
+// 								double h2cont=h2->GetBinContent(i);
+// 								double weight;
+// 								if (h1cont!=0 && h1cont-h2cont!=0) {
+// 												weight= (h1cont-h2cont)/h1cont;
+// 								} else {
+// 												weight= 0;
+// 								}
+// 								rhist->SetBinContent(i,weight);
+// 								// std::cout << "weight = "<<weight << std::endl;
+//
+// 				}
+// 				// TCanvas * c1 =new TCanvas();
+// 				// rhist->Draw();
+// 				// c1->Print("temp.png");
+//
+// 				return rhist;
+//
+// }
 
-std::vector<double> normRates(std::vector<double>& rates , double normConstant){
-				//Should be given the runtime in days and yearly rates (events per year).
-				double highestRate=*max_element(rates.begin(),rates.end());
-				std::vector<double> scaledRates;
-				std::cout << "highest rate = "<<highestRate << std::endl;
-				for (int i = 0; i < rates.size(); i++) {
-								scaledRates.push_back(rates[i]*normConstant/highestRate);	
-				}
-				return scaledRates;
-
-}
-TH1D* diffHist(TH1D * h1,TH1D * h2){
-
-
-				double minBin=h1->GetXaxis()->GetXmin();
-				double maxBin=h1->GetXaxis()->GetXmax();
-				double sliceWidth=h1->GetXaxis()->GetBinWidth(1);
-				double numOfBins=h1->GetNbinsX();
-				std::cout<<"minBin = "<<minBin<<std::endl;
-				std::cout<<"maxBin = "<<maxBin<<std::endl;
-				std::cout<<"sliceWidth = "<<sliceWidth<<std::endl;
-				std::cout<<"number of bins = "<<numOfBins<<std::endl;
-
-				TH1D* rhist = new TH1D("rhist","",numOfBins,minBin,maxBin);
-				for(double i=0;i<numOfBins;i++){
-								double h1cont=h1->GetBinContent(i);
-								double h2cont=h2->GetBinContent(i);
-								double weight;
-								if (h1cont!=0 && h1cont-h2cont!=0) {
-												weight= (h1cont-h2cont)/h1cont;
-								} else {
-												weight= 0;
-								}
-								rhist->SetBinContent(i,weight);
-								// std::cout << "weight = "<<weight << std::endl;
-
-				}
-				// TCanvas * c1 =new TCanvas();
-				// rhist->Draw();
-				// c1->Print("temp.png");
-
-				return rhist;
-
-
-}
-
-void normChecker(std::vector<double>& expectedrate, std::vector<double>& fit_result){
-				// std::setw(2);
-				// std::setprecision(5);
-				std::cout.precision(5);
-				std::cout<<"Comparison between expected rates and fit rates:"<<std::endl;
-				std::cout<<"------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
-				for (int i = 0; i < expectedrate.size(); i++) {
-					std::cout<<"Expected rate:\t"	
-									<<expectedrate[i]<<"\t|\t fit rate:\t"
-									<<fit_result[i]<<"\t|\t Abs difference:\t"
-									<<fabs(expectedrate[i]-fit_result[i])<<"\t|\t Frac error:\t"
-									<<(expectedrate[i]-fit_result[i])/expectedrate[i]
-									<<std::endl;
-					std::cout<<"------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
-				}
-				int numberOfSystmatics= fit_result.size()-expectedrate.size();
-				if (numberOfSystmatics){
-				}
-}
+// void normChecker(std::vector<double>& expectedrate, std::vector<double>& fit_result){
+// 				// std::setw(2);
+// 				// std::setprecision(5);
+// 				std::cout.precision(5);
+// 				std::cout<<"Comparison between expected rates and fit rates:"<<std::endl;
+// 				std::cout<<"------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
+// 				for (int i = 0; i < expectedrate.size(); i++) {
+// 					std::cout<<"Expected rate:\t"	
+// 									<<expectedrate[i]<<"\t|\t fit rate:\t"
+// 									<<fit_result[i]<<"\t|\t Abs difference:\t"
+// 									<<fabs(expectedrate[i]-fit_result[i])<<"\t|\t Frac error:\t"
+// 									<<(expectedrate[i]-fit_result[i])/expectedrate[i]
+// 									<<std::endl;
+// 					std::cout<<"------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
+// 				}
+// 				int numberOfSystmatics= fit_result.size()-expectedrate.size();
+// 				if (numberOfSystmatics){
+// 				}
+// }
 
 int main(){        
 				bool QmetHast=false;
@@ -206,7 +206,7 @@ int main(){
 				double Bi210Rate=427368;
 				double Po210Rate=1.74e7;
 				double C14Rate=3.78e9;
-				double _2n2bRate=find2n2bRate();
+				double _2n2bRate=UTIL::find2n2bRate();
 
 				// std::vector<double> RATES;
 				// RATES.push_back(Bi210Rate);
@@ -214,17 +214,17 @@ int main(){
 				// RATES.push_back(C14Rate);
 				// RATES.push_back(_2n2bRate);
 				// double highestRate=*max_element(RATES.begin(),RATES.end());
-				// rates=normRates(RATES, scaleForTime(highestRate,daysOfData));
+				// rates=UTIL::normRates(RATES, scaleForTime(highestRate,daysOfData));
 				
 				// rates.push_back(scaleForTime(Bi210Rate,daysOfData)); //Bi210
 				// rates.push_back(scaleForTime(Po210Rate,daysOfData)); //Po210
 				// rates.push_back(scaleForTime(_2n2bRate,daysOfData)); //2n2b
 				// rates.push_back(scaleForTime(C14Rate,daysOfData)); //C14
 
-				std::cout<<"Bi "<<scaleForTime(Bi210Rate,daysOfData)<<std::endl; //Bi210
-				std::cout<<"Po "<<scaleForTime(Po210Rate,daysOfData)<<std::endl; //Po210
-				std::cout<<"2b2n "<<scaleForTime(_2n2bRate,daysOfData)<<std::endl; //2n2b not known
-				std::cout<<"c14 "<<scaleForTime(C14Rate,daysOfData)<<std::endl; //C14
+				std::cout<<"Bi "<<UTIL::scaleForTime(Bi210Rate,daysOfData)<<std::endl; //Bi210
+				std::cout<<"Po "<<UTIL::scaleForTime(Po210Rate,daysOfData)<<std::endl; //Po210
+				std::cout<<"2b2n "<<UTIL::scaleForTime(_2n2bRate,daysOfData)<<std::endl; //2n2b not known
+				std::cout<<"c14 "<<UTIL::scaleForTime(C14Rate,daysOfData)<<std::endl; //C14
 
 				std::vector<ROOTNtuple*> ntupleList;
 				std::vector<BinnedPdf> binnedPDFList;
@@ -519,8 +519,8 @@ int main(){
 				gStyle->SetOptStat(kFALSE);  
 
 
-				// TH1D * diff_gSearch= diffHist(&comPlot,complete_gSearch); 
-				TH1D * diff_minuit= diffHist(&histList[0],complete_minuit); 
+				// TH1D * diff_gSearch= UTIL::diffHist(&comPlot,complete_gSearch); 
+				TH1D * diff_minuit= UTIL::diffHist(&histList[0],complete_minuit); 
 				diff_minuit->SetLineColor(kRed); 
 				diff_minuit->SetMarkerStyle(3); 
 				diff_minuit->SetLineWidth(2); 
@@ -539,7 +539,7 @@ int main(){
 				diff_minuit->Draw(); 
 
 				if(QmetHast){
-								TH1D * diff_metHast= diffHist(&histList[0],complete_metHast); 
+								TH1D * diff_metHast= UTIL::diffHist(&histList[0],complete_metHast); 
 								diff_metHast->SetLineColor(kBlack); 
 								diff_metHast->SetLineWidth(2); 
 								diff_metHast->SetFillColorAlpha(kBlack,0.1); 
@@ -552,10 +552,10 @@ int main(){
 				if(QmetHast)	std::cout<<" Number diff from he metHast fit = "<< histList[0].Integral() - fit_metHast[0]-fit_metHast[1]-fit_metHast[2]-fit_minuit[3] <<std::endl; 
 
 				std::cout<<"Minuit"<<std::endl;
-				normChecker(rates,fit_minuit);
+				UTIL::normChecker(rates,fit_minuit);
 				if(QmetHast){
 				std::cout<<"MetHast"<<std::endl;
-				normChecker(rates,fit_metHast);
+				UTIL::normChecker(rates,fit_metHast);
 				}
 				// printElement(2.2445335,1);
 				return 0; 
