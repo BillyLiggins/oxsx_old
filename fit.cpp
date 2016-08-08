@@ -268,8 +268,8 @@ int main(){
 				BinnedPdf DataPdf(axes);
 				DataPdf.SetDataRep(dataRep);        
 				dataGen.SetCuts(cutCol);
-				OXSXDataSet fakeData= dataGen.ExpectedRatesDataSet();
-				// OXSXDataSet fakeData= dataGen.PoissonFluctuatedDataSet();
+				// OXSXDataSet fakeData= dataGen.ExpectedRatesDataSet();
+				OXSXDataSet fakeData= dataGen.PoissonFluctuatedDataSet();
 				for(size_t i = 0; i < fakeData.GetNEntries(); i++){        
 								//Cut between 0 and 3.
 								if(boxCut.PassesCut(fakeData.GetEntry(i))){
